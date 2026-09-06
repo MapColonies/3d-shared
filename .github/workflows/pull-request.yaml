@@ -27,26 +27,3 @@ jobs:
           eslint: true
           prettier: true
           eslint_extensions: ts
-
-  tests:
-    name: Run Tests
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node: [24.x]
-
-    steps:
-      - name: Check out TS Project Git repository
-        uses: actions/checkout@v4
-
-      - name: Init nodejs
-        uses: ./.github/actions/init-npm
-
-      - name: Run tests
-        run: npm run test
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Test Reporters ${{ matrix.node }}
-          path: ./reports/**

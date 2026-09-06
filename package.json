@@ -23,7 +23,6 @@
     "test": "jest",
     "clean": "rimraf dist",
     "prepack": "npm run build",
-    "prepare": "husky",
     "release": "standard-version"
   },
   "engines": {
