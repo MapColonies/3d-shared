@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 export const JobTypes = {
   INGESTION_NEW: 'Ingestion_New',
   INGESTION_UPDATE: 'Ingestion_Update',

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Domain, ProductType } from '@map-colonies/types';
 import { pickEnum } from '../../utils/typeUtils';
 
