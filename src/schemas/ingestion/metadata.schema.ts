@@ -34,41 +34,14 @@ export const aggregation3DMetadataSchema = z
     footprint: geometrySchema,
     sourceDateStart: z.date(),
     sourceDateEnd: z.date(),
-    maxAbsoluteAccuracyCEP90: z
-      .number()
-      .min(CORE_VALIDATIONS.accuracy.min)
-      .max(CORE_VALIDATIONS.accuracy.max),
-    maxRelativeAccuracyCEP90: z
-      .number()
-      .min(CORE_VALIDATIONS.accuracy.min)
-      .max(CORE_VALIDATIONS.accuracy.max),
-    maxRelativeAccuracyLEP90: z
-      .number()
-      .min(CORE_VALIDATIONS.accuracy.min)
-      .max(CORE_VALIDATIONS.accuracy.max),
-    maxAbsoluteAccuracyLEP90: z
-      .number()
-      .min(CORE_VALIDATIONS.accuracy.min)
-      .max(CORE_VALIDATIONS.accuracy.max)
-      .optional(),
-    maxAbsoluteAccuracySEP90: z
-      .number()
-      .min(CORE_VALIDATIONS.accuracy.min)
-      .max(CORE_VALIDATIONS.accuracy.max)
-      .optional(),
-    maxRelativeAccuracySEP90: z
-      .number()
-      .min(CORE_VALIDATIONS.accuracy.min)
-      .max(CORE_VALIDATIONS.accuracy.max)
-      .optional(),
-    maxResolutionMeter: z
-      .number()
-      .min(CORE_VALIDATIONS.resolutionMeter.min)
-      .max(CORE_VALIDATIONS.resolutionMeter.max),
-    minResolutionMeter: z
-      .number()
-      .min(CORE_VALIDATIONS.resolutionMeter.min)
-      .max(CORE_VALIDATIONS.resolutionMeter.max),
+    maxAbsoluteAccuracyCEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max),
+    maxRelativeAccuracyCEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max),
+    maxRelativeAccuracyLEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max),
+    maxAbsoluteAccuracyLEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max).optional(),
+    maxAbsoluteAccuracySEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max).optional(),
+    maxRelativeAccuracySEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max).optional(),
+    maxResolutionMeter: z.number().min(CORE_VALIDATIONS.resolutionMeter.min).max(CORE_VALIDATIONS.resolutionMeter.max),
+    minResolutionMeter: z.number().min(CORE_VALIDATIONS.resolutionMeter.min).max(CORE_VALIDATIONS.resolutionMeter.max),
     productBoundingBox: z.string(),
     sensors: z.array(z.string()).min(INGESTION_VALIDATIONS.sensors.minItems),
   })

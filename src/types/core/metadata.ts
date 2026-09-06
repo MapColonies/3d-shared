@@ -2,6 +2,7 @@ import { RecordStatus, RecordType } from '@map-colonies/types';
 import { Geometry } from 'geojson';
 import { Layer3DProductTypes } from '../../constants/core';
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export type Layer3DMetadata = {
   id: string;
   type: RecordType;

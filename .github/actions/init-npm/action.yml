@@ -8,14 +8,14 @@ inputs:
 runs:
   using: composite
   steps:
-  - name: Set up Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: ${{ inputs.node-version }}
-      cache: npm
-  - name: Install TS Project dependencies
-    shell: bash
-    run: npm ci
-  - name: build
-    shell: bash
-    run: npm run build
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+    - name: Install TS Project dependencies
+      shell: bash
+      run: npm ci
+    - name: build
+      shell: bash
+      run: npm run build

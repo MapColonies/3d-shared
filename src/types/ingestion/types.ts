@@ -1,13 +1,6 @@
 import { z } from 'zod';
-import {
-  new3DLayerMetadataSchema,
-  update3DLayerMetadataSchema,
-  aggregation3DMetadataSchema,
-} from '../../schemas/ingestion/metadata.schema';
-import {
-  new3DLayerRequestSchema,
-  update3DLayerRequestSchema,
-} from '../../schemas/ingestion/ingestionRequest.schema';
+import { new3DLayerMetadataSchema, update3DLayerMetadataSchema, aggregation3DMetadataSchema } from '../../schemas/ingestion/metadata.schema';
+import { new3DLayerRequestSchema, update3DLayerRequestSchema } from '../../schemas/ingestion/ingestionRequest.schema';
 import {
   ingestion3DNewJobParamsSchema,
   ingestion3DUpdateJobParamsSchema,
