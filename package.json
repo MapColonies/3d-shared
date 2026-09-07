@@ -1,0 +1,73 @@
+{
+  "name": "@map-colonies/3d-shared",
+  "version": "1.0.0",
+  "description": "Shared types, schemas, and constants for MapColonies 3D services",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --config=./tests/configurations/jest.config.js",
+    "build:watch": "tsc --watch",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "prelint:fix": "npm run format:fix",
+    "prelint": "npm run format",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "clean": "rimraf dist",
+    "prepack": "npm run build",
+    "prepare": "husky",
+    "release": "standard-version"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MapColonies/3d-shared.git"
+  },
+  "author": "MapColonies",
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@map-colonies/types": "^1.4.0",
+    "geojson": "^0.5.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.7.26",
+    "@swc/jest": "^0.2.36",
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@map-colonies/eslint-config": "^4.0.0",
+    "@map-colonies/prettier-config": "^0.0.1",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@types/geojson": "^7946.0.14",
+    "@types/jest": "^29.4.0",
+    "@types/node": "^20.0.0",
+    "commitlint": "^19.6.1",
+    "eslint": "^8.36.0",
+    "husky": "^9.1.7",
+    "jest": "^29.0.0",
+    "jest-html-reporters": "^3.1.4",
+    "prettier": "^3.4.2",
+    "pretty-quick": "^4.0.0",
+    "rimraf": "^5.0.0",
+    "standard-version": "^9.5.0",
+    "ts-jest": "^29.0.0",
+    "typedoc": "^0.27.6",
+    "typescript": "^5.0.0"
+  }
+}
