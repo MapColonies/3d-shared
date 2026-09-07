@@ -1,23 +1,5 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-export const JobTypes = {
-  INGESTION_NEW: 'Ingestion_New',
-  INGESTION_UPDATE: 'Ingestion_Update',
-  DELETE: 'Delete',
-} as const;
-
-export type JobTypes = (typeof JobTypes)[keyof typeof JobTypes];
-
-export const TaskTypes = {
-  INIT: 'init',
-  FINALIZE: 'finalize',
-} as const;
-
-export type TaskTypes = (typeof TaskTypes)[keyof typeof TaskTypes];
-
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 export const INGESTION_VALIDATIONS = {
-  productId: {
-    pattern: '^[a-zA-Z0-9_-]+$',
-  },
   productName: {
     maxLength: 120,
   },

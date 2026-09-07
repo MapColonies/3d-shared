@@ -1,24 +1,21 @@
 import { z } from 'zod';
-import { LAYER_3D_PRODUCT_TYPE_LIST, CORE_VALIDATIONS } from '../../constants/core';
+import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../constants/core';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
 import { geometrySchema } from '../core/geo.schema';
 
-export const base3DLayerMetadataSchema = z.object({
-  classification: z.string(),
-});
-
-export const new3DLayerMetadataSchema = base3DLayerMetadataSchema.extend({
+export const new3DLayerMetadataSchema = z.object({
   productId: z.string(),
   productName: z.string().max(INGESTION_VALIDATIONS.productName.maxLength),
   productType: z.enum(LAYER_3D_PRODUCT_TYPE_LIST as [string, ...string[]]),
   productSubType: z.string().optional(),
   description: z.string().optional(),
+  classification: z.string(),
   srsId: z.literal('4326'),
   srsName: z.literal('WGS84GEO'),
   region: z.array(z.string()).min(INGESTION_VALIDATIONS.region.minItems),
   producerName: z.string().optional(),
   productionSystem: z.string(),
-  productionSystemVer: z.string().max(INGESTION_VALIDATIONS.productionSystemVer.maxLength),
+  productionSystemVersion: z.string().max(INGESTION_VALIDATIONS.productionSystemVer.maxLength),
   productionDate: z.string(),
 });
 
@@ -34,14 +31,14 @@ export const aggregation3DMetadataSchema = z
     footprint: geometrySchema,
     sourceDateStart: z.date(),
     sourceDateEnd: z.date(),
-    maxAbsoluteAccuracyCEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max),
-    maxRelativeAccuracyCEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max),
-    maxRelativeAccuracyLEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max),
-    maxAbsoluteAccuracyLEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max).optional(),
-    maxAbsoluteAccuracySEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max).optional(),
-    maxRelativeAccuracySEP90: z.number().min(CORE_VALIDATIONS.accuracy.min).max(CORE_VALIDATIONS.accuracy.max).optional(),
-    maxResolutionMeter: z.number().min(CORE_VALIDATIONS.resolutionMeter.min).max(CORE_VALIDATIONS.resolutionMeter.max),
-    minResolutionMeter: z.number().min(CORE_VALIDATIONS.resolutionMeter.min).max(CORE_VALIDATIONS.resolutionMeter.max),
+    maxAbsoluteAccuracyCEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
+    maxRelativeAccuracyCEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
+    maxRelativeAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
+    maxAbsoluteAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
+    maxAbsoluteAccuracySEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
+    maxRelativeAccuracySEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
+    maxResolutionMeter: z.number().min(INGESTION_VALIDATIONS.resolutionMeter.min).max(INGESTION_VALIDATIONS.resolutionMeter.max),
+    minResolutionMeter: z.number().min(INGESTION_VALIDATIONS.resolutionMeter.min).max(INGESTION_VALIDATIONS.resolutionMeter.max),
     productBoundingBox: z.string(),
     sensors: z.array(z.string()).min(INGESTION_VALIDATIONS.sensors.minItems),
   })

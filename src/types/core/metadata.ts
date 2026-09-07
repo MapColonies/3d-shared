@@ -15,8 +15,8 @@ export type Layer3DMetadata = {
   links?: string;
   creationDate?: Date;
   updateDate?: Date;
-  sourceDateStart: Date;
-  sourceDateEnd: Date;
+  imagingTimeBeginUTC: Date;
+  imagingTimeEndUTC: Date;
   minResolutionMeter: number;
   maxResolutionMeter: number;
   maxAbsoluteAccuracyCEP90: number;
@@ -36,7 +36,7 @@ export type Layer3DMetadata = {
   classification: string;
   producerName: string;
   productionSystem: string;
-  productionSystemVer: string;
+  productionSystemVersion: string;
   productionDate: string;
   keywords?: string;
   productBoundingBox: string;
