@@ -1,0 +1,47 @@
+import { RecordStatus, RecordType } from '@map-colonies/types';
+import { Geometry } from 'geojson';
+import { Layer3DProductTypes } from '../../constants/core';
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type Layer3DMetadata = {
+  id: string;
+  type: RecordType;
+  productId: string;
+  productName: string;
+  productVersion: number;
+  productType: Layer3DProductTypes;
+  productSubType?: string;
+  description?: string;
+  links?: string;
+  creationDate?: Date;
+  updateDate?: Date;
+  imagingTimeBeginUTC: Date;
+  imagingTimeEndUTC: Date;
+  minResolutionMeter: number;
+  maxResolutionMeter: number;
+  maxAbsoluteAccuracyCEP90: number;
+  maxAbsoluteAccuracyLEP90?: number;
+  maxAbsoluteAccuracySEP90?: number;
+  maxRelativeAccuracyCEP90: number;
+  maxRelativeAccuracyLEP90: number;
+  maxRelativeAccuracySEP90?: number;
+  visualAccuracy?: number;
+  sensors: string[];
+  footprint: Geometry;
+  heightRangeFrom?: number;
+  heightRangeTo?: number;
+  srsId: string;
+  srsName: string;
+  region: string[];
+  classification: string;
+  producerName: string;
+  productionSystem: string;
+  productionSystemVersion: string;
+  productionDate: string;
+  keywords?: string;
+  productBoundingBox: string;
+  productStatus: RecordStatus;
+  minFlightAlt?: number;
+  maxFlightAlt?: number;
+  geographicArea?: string;
+};
