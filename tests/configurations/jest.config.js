@@ -9,7 +9,7 @@ module.exports = {
   setupFiles: ['<rootDir>/tests/configurations/jest.setup.js'],
   collectCoverage: true,
   moduleDirectories: ['node_modules', 'src'],
-  collectCoverageFrom: ['<rootDir>/src/**/*.{ts}', '!**/node_modules/**', '!**/vendor/**'],
+  collectCoverageFrom: ['<rootDir>/src/**/*.ts', '!<rootDir>/src/**/index.ts', '!**/node_modules/**', '!**/vendor/**'],
   reporters: [
     'default',
     [
