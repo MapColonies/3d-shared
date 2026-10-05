@@ -10,6 +10,7 @@ const validNewMetadata = {
   srsId: '4326',
   srsName: 'WGS84GEO',
   region: ['ישראל'],
+  producerName: 'IDFMU',
   productionSystem: 'sys',
   productionSystemVersion: '1',
   productionDate: '2025-07-08T11:26:00.000Z',
@@ -42,7 +43,7 @@ describe('new3DLayerMetadataSchema', () => {
 
   it('rejects when a required field is missing', () => {
     const missing = { ...validNewMetadata };
-    delete (missing as Partial<typeof validNewMetadata>).productId;
+    delete (missing as Partial<typeof validNewMetadata>).productName;
     expect(new3DLayerMetadataSchema.safeParse(missing).success).toBe(false);
   });
 });
@@ -74,9 +75,10 @@ describe('aggregation3DMetadataSchema', () => {
         ],
       ],
     },
-    sourceDateStart: new Date('2025-07-06T11:10:00.000Z'),
-    sourceDateEnd: new Date('2025-07-10T11:10:00.000Z'),
+    imagingTimeBeginUTC: new Date('2025-07-06T11:10:00.000Z'),
+    imagingTimeEndUTC: new Date('2025-07-10T11:10:00.000Z'),
     maxAbsoluteAccuracyCEP90: 1,
+    maxAbsoluteAccuracyLEP90: 1,
     maxRelativeAccuracyCEP90: 1,
     maxRelativeAccuracyLEP90: 1,
     maxResolutionMeter: 1,
@@ -89,8 +91,8 @@ describe('aggregation3DMetadataSchema', () => {
     expect(aggregation3DMetadataSchema.safeParse(validAggregation).success).toBe(true);
   });
 
-  it('rejects when sourceDateStart is after sourceDateEnd', () => {
-    const bad = { ...validAggregation, sourceDateStart: new Date('2025-07-11T00:00:00.000Z') };
+  it('rejects when imagingTimeBeginUTC is after imagingTimeEndUTC', () => {
+    const bad = { ...validAggregation, imagingTimeBeginUTC: new Date('2025-07-11T00:00:00.000Z') };
     const result = aggregation3DMetadataSchema.safeParse(bad);
     expect(result.success).toBe(false);
   });
@@ -108,5 +110,44 @@ describe('aggregation3DMetadataSchema', () => {
   it('rejects an empty sensors array', () => {
     const bad = { ...validAggregation, sensors: [] };
     expect(aggregation3DMetadataSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it('coerces ISO date strings for imagingTimeBeginUTC/imagingTimeEndUTC', () => {
+    const withStringDates = { ...validAggregation, imagingTimeBeginUTC: '2025-07-06T11:10:00.000Z', imagingTimeEndUTC: '2025-07-10T11:10:00.000Z' };
+    const result = aggregation3DMetadataSchema.safeParse(withStringDates);
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts the optional v2 fields (visualAccuracy, heightRange, flightAlt, geographicArea, SEP90 accuracies)', () => {
+    const withOptionals = {
+      ...validAggregation,
+      visualAccuracy: 50,
+      maxAbsoluteAccuracySEP90: 100,
+      maxRelativeAccuracySEP90: 50,
+      heightRangeFrom: 0,
+      heightRangeTo: 120,
+      minFlightAlt: 100,
+      maxFlightAlt: 400,
+      geographicArea: 'ישראל',
+    };
+    expect(aggregation3DMetadataSchema.safeParse(withOptionals).success).toBe(true);
+  });
+
+  it('rejects maxRelativeAccuracySEP90 above the accuracy max bound', () => {
+    const bad = { ...validAggregation, maxRelativeAccuracySEP90: INGESTION_VALIDATIONS.accuracy.max + 1 };
+    expect(aggregation3DMetadataSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it('accepts aggregation without the optional relative CEP90/LEP90 accuracies', () => {
+    const withoutRelative = { ...validAggregation };
+    delete (withoutRelative as Record<string, unknown>).maxRelativeAccuracyCEP90;
+    delete (withoutRelative as Record<string, unknown>).maxRelativeAccuracyLEP90;
+    expect(aggregation3DMetadataSchema.safeParse(withoutRelative).success).toBe(true);
+  });
+
+  it('rejects aggregation missing a mandatory accuracy (maxAbsoluteAccuracyCEP90)', () => {
+    const missingMandatory = { ...validAggregation };
+    delete (missingMandatory as Record<string, unknown>).maxAbsoluteAccuracyCEP90;
+    expect(aggregation3DMetadataSchema.safeParse(missingMandatory).success).toBe(false);
   });
 });

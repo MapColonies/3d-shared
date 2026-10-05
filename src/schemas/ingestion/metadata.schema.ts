@@ -13,9 +13,9 @@ export const new3DLayerMetadataSchema = z.object({
   srsId: z.literal('4326'),
   srsName: z.literal('WGS84GEO'),
   region: z.array(z.string()).min(INGESTION_VALIDATIONS.region.minItems),
-  producerName: z.string().optional(),
+  producerName: z.string(),
   productionSystem: z.string(),
-  productionSystemVersion: z.string().max(INGESTION_VALIDATIONS.productionSystemVer.maxLength),
+  productionSystemVersion: z.string().max(INGESTION_VALIDATIONS.productionSystemVersion.maxLength),
   productionDate: z.string(),
 });
 
@@ -29,21 +29,27 @@ export const update3DLayerMetadataSchema = z.object({
 export const aggregation3DMetadataSchema = z
   .object({
     footprint: geometrySchema,
-    sourceDateStart: z.date(),
-    sourceDateEnd: z.date(),
+    imagingTimeBeginUTC: z.coerce.date(),
+    imagingTimeEndUTC: z.coerce.date(),
     maxAbsoluteAccuracyCEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
-    maxRelativeAccuracyCEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
-    maxRelativeAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
-    maxAbsoluteAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
+    maxAbsoluteAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
+    maxRelativeAccuracyCEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
+    maxRelativeAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
     maxAbsoluteAccuracySEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
     maxRelativeAccuracySEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
+    visualAccuracy: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
     maxResolutionMeter: z.number().min(INGESTION_VALIDATIONS.resolutionMeter.min).max(INGESTION_VALIDATIONS.resolutionMeter.max),
     minResolutionMeter: z.number().min(INGESTION_VALIDATIONS.resolutionMeter.min).max(INGESTION_VALIDATIONS.resolutionMeter.max),
+    heightRangeFrom: z.number().optional(),
+    heightRangeTo: z.number().optional(),
+    minFlightAlt: z.number().optional(),
+    maxFlightAlt: z.number().optional(),
+    geographicArea: z.string().optional(),
     productBoundingBox: z.string(),
     sensors: z.array(z.string()).min(INGESTION_VALIDATIONS.sensors.minItems),
   })
   .strict()
-  .refine((data) => data.sourceDateStart <= data.sourceDateEnd, {
-    message: 'sourceDateStart must not be later than sourceDateEnd',
-    path: ['sourceDateStart'],
+  .refine((data) => data.imagingTimeBeginUTC <= data.imagingTimeEndUTC, {
+    message: 'imagingTimeBeginUTC must not be later than imagingTimeEndUTC',
+    path: ['imagingTimeBeginUTC'],
   });
