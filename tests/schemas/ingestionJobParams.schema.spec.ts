@@ -16,6 +16,7 @@ const validMetadata = {
   productionSystem: 'sys',
   productionSystemVersion: '1',
   productionDate: '2025-07-08T11:26:00.000Z',
+  producerName: 'IDFMU',
 };
 
 describe('ingestion3DNewJobParamsSchema', () => {

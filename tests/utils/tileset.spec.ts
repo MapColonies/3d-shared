@@ -1,8 +1,4 @@
-import {
-  calculatePolygonFromTileset,
-  ERROR_BOX_TILESET,
-  ERROR_BAD_FORMAT_TILESET,
-} from '../../src/utils/tileset';
+import { calculatePolygonFromTileset, ERROR_BOX_TILESET, ERROR_BAD_FORMAT_TILESET } from '../../src/utils/tileset';
 import type { TileSetJson } from '../../src/types/core/tileset';
 
 describe('calculatePolygonFromTileset', () => {
