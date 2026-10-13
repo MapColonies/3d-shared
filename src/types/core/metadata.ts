@@ -2,8 +2,7 @@ import { RecordStatus, RecordType } from '@map-colonies/types';
 import { Geometry } from 'geojson';
 import { Layer3DProductTypes } from '../../constants/core';
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type Layer3DMetadata = {
+export interface Layer3DMetadata {
   id: string;
   type: RecordType;
   productId: string;
@@ -44,4 +43,4 @@ export type Layer3DMetadata = {
   minFlightAlt?: number;
   maxFlightAlt?: number;
   geographicArea?: string;
-};
+}

@@ -6,17 +6,9 @@ import {
 import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../src/constants/core';
 
 const validMetadata = {
-  productId: 'p-1',
-  productName: 'my-product',
   productType: LAYER_3D_PRODUCT_TYPE_LIST[0],
   classification: 'abc123',
-  srsId: '4326',
-  srsName: 'WGS84GEO',
   region: ['ישראל'],
-  productionSystem: 'sys',
-  productionSystemVersion: '1',
-  productionDate: '2025-07-08T11:26:00.000Z',
-  producerName: 'IDFMU',
 };
 
 describe('ingestion3DNewJobParamsSchema', () => {
@@ -25,7 +17,7 @@ describe('ingestion3DNewJobParamsSchema', () => {
   });
 
   it('rejects params with invalid metadata', () => {
-    expect(ingestion3DNewJobParamsSchema.safeParse({ metadata: { productId: 'p-1' } }).success).toBe(false);
+    expect(ingestion3DNewJobParamsSchema.safeParse({ metadata: { classification: 'abc123' } }).success).toBe(false);
   });
 
   it('rejects params missing metadata', () => {

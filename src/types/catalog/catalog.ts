@@ -1,17 +1,7 @@
-export interface Record3D {
-  id: string;
-  productId?: string;
-  productName?: string;
-  productVersion?: number;
-  productStatus?: string;
-  links?: string;
+import { Layer3DMetadata } from '../core/metadata';
+
+export interface Record3D extends Layer3DMetadata {
+  links: string;
 }
 
-export interface IFindRecordsPayload {
-  id?: string;
-  productId?: string;
-  productName?: string;
-  productType?: string;
-  classification?: string;
-  productStatus?: string;
-}
+export type IFindRecordsPayload = Partial<Layer3DMetadata>;

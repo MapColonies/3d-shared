@@ -1,5 +1,19 @@
 import { bboxSchema, polygonSchema, multiPolygonSchema, geometrySchema } from '../../src/schemas/core/geo.schema';
 
+const ring2D = [
+  [34.45, 31.48],
+  [34.46, 31.48],
+  [34.46, 31.49],
+  [34.45, 31.48],
+];
+
+const ring3D = [
+  [35.0, 32.0, 5],
+  [35.1, 32.0, 6],
+  [35.1, 32.1, 7],
+  [35.0, 32.0, 5],
+];
+
 describe('geo.schema', () => {
   describe('polygonSchema', () => {
     it('accepts a 2D polygon ring', () => {
@@ -37,54 +51,46 @@ describe('geo.schema', () => {
       expect(polygonSchema.safeParse(notPolygon).success).toBe(false);
     });
 
-    it('rejects a coordinate with only one number', () => {
-      const bad = { type: 'Polygon', coordinates: [[[34.45]]] };
+    it('rejects a ring with fewer than 4 positions', () => {
+      const bad = { type: 'Polygon', coordinates: [ring2D.slice(0, 3)] };
+      expect(polygonSchema.safeParse(bad).success).toBe(false);
+    });
+
+    it('rejects a coordinate with only one number ([34.45])', () => {
+      const bad = { type: 'Polygon', coordinates: [[[34.45], ...ring2D.slice(1)]] };
       expect(polygonSchema.safeParse(bad).success).toBe(false);
     });
 
     it('rejects a coordinate with four numbers', () => {
-      const bad = { type: 'Polygon', coordinates: [[[34.45, 31.48, 10, 5]]] };
+      const bad = { type: 'Polygon', coordinates: [[[34.45, 31.48, 10, 5], ...ring2D.slice(1)]] };
       expect(polygonSchema.safeParse(bad).success).toBe(false);
     });
   });
 
   describe('multiPolygonSchema', () => {
     it('accepts a multipolygon with 2D and 3D coordinates', () => {
-      const multi = {
-        type: 'MultiPolygon',
-        coordinates: [
-          [
-            [
-              [34.45, 31.48],
-              [34.46, 31.48],
-              [34.45, 31.48],
-            ],
-          ],
-          [
-            [
-              [35.0, 32.0, 5],
-              [35.1, 32.0, 6],
-              [35.0, 32.0, 5],
-            ],
-          ],
-        ],
-      };
+      const multi = { type: 'MultiPolygon', coordinates: [[ring2D], [ring3D]] };
       expect(multiPolygonSchema.safeParse(multi).success).toBe(true);
     });
 
+    it('rejects a ring with fewer than 4 positions', () => {
+      const bad = { type: 'MultiPolygon', coordinates: [[ring2D.slice(0, 3)]] };
+      expect(multiPolygonSchema.safeParse(bad).success).toBe(false);
+    });
+
     it('rejects a polygon shape (one fewer nesting level)', () => {
-      const polygon = { type: 'MultiPolygon', coordinates: [[[34.45, 31.48]]] };
+      const polygon = { type: 'MultiPolygon', coordinates: [ring2D] };
       expect(multiPolygonSchema.safeParse(polygon).success).toBe(false);
     });
   });
 
   describe('geometrySchema', () => {
     it('accepts a Polygon', () => {
-      expect(geometrySchema.safeParse({ type: 'Polygon', coordinates: [[[34.45, 31.48]]] }).success).toBe(true);
+      expect(geometrySchema.safeParse({ type: 'Polygon', coordinates: [ring2D] }).success).toBe(true);
     });
 
     it('accepts a MultiPolygon', () => {
-      expect(geometrySchema.safeParse({ type: 'MultiPolygon', coordinates: [[[[34.45, 31.48]]]] }).success).toBe(true);
+      expect(geometrySchema.safeParse({ type: 'MultiPolygon', coordinates: [[ring2D]] }).success).toBe(true);
     });
 
     it('rejects an unsupported geometry type', () => {

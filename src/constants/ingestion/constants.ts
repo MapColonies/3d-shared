@@ -20,7 +20,4 @@ export const INGESTION_VALIDATIONS = {
   region: {
     minItems: 1,
   },
-  productionSystemVersion: {
-    maxLength: 20,
-  },
 } as const;

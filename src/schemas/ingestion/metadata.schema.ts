@@ -4,27 +4,19 @@ import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
 import { geometrySchema } from '../core/geo.schema';
 
 export const new3DLayerMetadataSchema = z.object({
-  productId: z.string(),
-  productName: z.string().max(INGESTION_VALIDATIONS.productName.maxLength),
   productType: z.enum(LAYER_3D_PRODUCT_TYPE_LIST as [string, ...string[]]),
   productSubType: z.string().optional(),
   description: z.string().optional(),
   classification: z.string(),
-  srsId: z.literal('4326'),
-  srsName: z.literal('WGS84GEO'),
   region: z.array(z.string()).min(INGESTION_VALIDATIONS.region.minItems),
-  producerName: z.string(),
-  productionSystem: z.string(),
-  productionSystemVersion: z.string().max(INGESTION_VALIDATIONS.productionSystemVersion.maxLength),
-  productionDate: z.string(),
 });
 
-export const update3DLayerMetadataSchema = z.object({
-  productName: z.string().max(INGESTION_VALIDATIONS.productName.maxLength).optional(),
-  productSubType: z.string().optional(),
-  description: z.string().optional(),
-  classification: z.string().optional(),
-});
+// export const update3DLayerMetadataSchema = z.object({
+//   productName: z.string().max(INGESTION_VALIDATIONS.productName.maxLength).optional(),
+//   productSubType: z.string().optional(),
+//   description: z.string().optional(),
+//   classification: z.string().optional(),
+// });
 
 export const aggregation3DMetadataSchema = z
   .object({

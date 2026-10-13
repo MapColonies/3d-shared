@@ -3,27 +3,14 @@ import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../src/constants/core';
 import { INGESTION_VALIDATIONS } from '../../src/constants/ingestion';
 
 const validNewMetadata = {
-  productId: 'p-1',
-  productName: 'my-product',
   productType: LAYER_3D_PRODUCT_TYPE_LIST[0],
   classification: 'abc123',
-  srsId: '4326',
-  srsName: 'WGS84GEO',
   region: ['ישראל'],
-  producerName: 'IDFMU',
-  productionSystem: 'sys',
-  productionSystemVersion: '1',
-  productionDate: '2025-07-08T11:26:00.000Z',
 };
 
 describe('new3DLayerMetadataSchema', () => {
   it('accepts a valid metadata object', () => {
     expect(new3DLayerMetadataSchema.safeParse(validNewMetadata).success).toBe(true);
-  });
-
-  it('rejects a productName over the max length', () => {
-    const tooLong = { ...validNewMetadata, productName: 'a'.repeat(INGESTION_VALIDATIONS.productName.maxLength + 1) };
-    expect(new3DLayerMetadataSchema.safeParse(tooLong).success).toBe(false);
   });
 
   it('rejects a productType outside the allowed 3D list', () => {
@@ -36,14 +23,9 @@ describe('new3DLayerMetadataSchema', () => {
     expect(new3DLayerMetadataSchema.safeParse(bad).success).toBe(false);
   });
 
-  it('rejects a srsId other than "4326"', () => {
-    const bad = { ...validNewMetadata, srsId: '3857' };
-    expect(new3DLayerMetadataSchema.safeParse(bad).success).toBe(false);
-  });
-
   it('rejects when a required field is missing', () => {
     const missing = { ...validNewMetadata };
-    delete (missing as Partial<typeof validNewMetadata>).productName;
+    delete (missing as Partial<typeof validNewMetadata>).classification;
     expect(new3DLayerMetadataSchema.safeParse(missing).success).toBe(false);
   });
 });
@@ -71,6 +53,7 @@ describe('aggregation3DMetadataSchema', () => {
         [
           [34.45, 31.48],
           [34.46, 31.48],
+          [34.46, 31.49],
           [34.45, 31.48],
         ],
       ],
