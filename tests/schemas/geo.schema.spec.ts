@@ -14,6 +14,13 @@ const ring3D = [
   [35.0, 32.0, 5],
 ];
 
+const mixedRing = [
+  [34.45, 31.48],
+  [34.46, 31.48],
+  [34.46, 31.49, 7],
+  [34.45, 31.48],
+];
+
 describe('geo.schema', () => {
   describe('polygonSchema', () => {
     it('accepts a 2D polygon ring', () => {
@@ -61,6 +68,11 @@ describe('geo.schema', () => {
       expect(polygonSchema.safeParse(bad).success).toBe(false);
     });
 
+    it('rejects a ring that mixes 2D and 3D coordinates', () => {
+      const bad = { type: 'Polygon', coordinates: [mixedRing] };
+      expect(polygonSchema.safeParse(bad).success).toBe(false);
+    });
+
     it('rejects a coordinate with four numbers', () => {
       const bad = { type: 'Polygon', coordinates: [[[34.45, 31.48, 10, 5], ...ring2D.slice(1)]] };
       expect(polygonSchema.safeParse(bad).success).toBe(false);
@@ -75,6 +87,11 @@ describe('geo.schema', () => {
 
     it('rejects a ring with fewer than 4 positions', () => {
       const bad = { type: 'MultiPolygon', coordinates: [[ring2D.slice(0, 3)]] };
+      expect(multiPolygonSchema.safeParse(bad).success).toBe(false);
+    });
+
+    it('rejects a ring that mixes 2D and 3D coordinates', () => {
+      const bad = { type: 'MultiPolygon', coordinates: [[mixedRing]] };
       expect(multiPolygonSchema.safeParse(bad).success).toBe(false);
     });
 

@@ -2,7 +2,7 @@ import { RecordStatus, RecordType } from '@map-colonies/types';
 import { Geometry } from 'geojson';
 import { Layer3DProductTypes } from '../../constants/core';
 
-export interface Layer3DMetadata {
+export interface ILayer3DMetadata {
   id: string;
   type: RecordType;
   productId: string;

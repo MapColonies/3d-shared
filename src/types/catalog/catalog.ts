@@ -1,7 +1,7 @@
-import { Layer3DMetadata } from '../core/metadata';
+import { ILayer3DMetadata } from '../core/metadata';
 
-export interface Record3D extends Layer3DMetadata {
+export interface Record3D extends ILayer3DMetadata {
   links: string;
 }
 
-export type IFindRecordsPayload = Partial<Layer3DMetadata>;
+export type IFindRecordsPayload = Partial<ILayer3DMetadata>;
