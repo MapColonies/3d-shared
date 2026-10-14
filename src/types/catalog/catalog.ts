@@ -1,4 +1,4 @@
-import { ILayer3DMetadata } from '../core/metadata';
+import type { ILayer3DMetadata } from '../core/metadata';
 
 export interface Record3D extends ILayer3DMetadata {
   links: string;

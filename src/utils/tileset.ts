@@ -9,9 +9,9 @@ export const ERROR_BOX_TILESET = 'BoundingVolume of box is not supported yet. Pl
 export const ERROR_BAD_FORMAT_TILESET = 'Bad tileset format. Should be in 3DTiles format';
 
 export const convertSphereFromXYZToWGS84 = (shape: BoundingSphere): Polygon => {
-  const coord = proj4(PROJECTIONS.sphere).inverse<number[]>(shape.sphere);
-  const radius = coord[3] / 1000;
-  return ellipse([coord[0], coord[1]], radius, radius, {}).geometry;
+  const [lon, lat, , radiusMeters] = proj4(PROJECTIONS.sphere).inverse<number[]>(shape.sphere) as [number, number, number, number];
+  const radius = radiusMeters / 1000;
+  return ellipse([lon, lat], radius, radius, {}).geometry;
 };
 
 export const convertRegionFromRadianToDegrees = (shape: BoundingRegion): Polygon => {

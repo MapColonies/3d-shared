@@ -1,6 +1,6 @@
-import { z } from 'zod';
-import { new3DLayerMetadataSchema, aggregation3DMetadataSchema } from '../../schemas/ingestion/metadata.schema';
-import { ingestion3DNewJobParamsSchema, ingestion3DDeleteJobParamsSchema } from '../../schemas/ingestion/ingestionJobParams.schema';
+import type { z } from 'zod';
+import type { new3DLayerMetadataSchema, aggregation3DMetadataSchema } from '../../schemas/ingestion/metadata.schema';
+import type { ingestion3DNewJobParamsSchema, ingestion3DDeleteJobParamsSchema } from '../../schemas/ingestion/ingestionJobParams.schema';
 
 export type New3DLayerMetadata = z.infer<typeof new3DLayerMetadataSchema>;
 // export type Update3DLayerMetadata = z.infer<typeof update3DLayerMetadataSchema>;

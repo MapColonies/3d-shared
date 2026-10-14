@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 export const INGESTION_VALIDATIONS = {
   productName: {
     maxLength: 120,
