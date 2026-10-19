@@ -165,8 +165,8 @@ describe('extractShapeMetadataRow', () => {
   it('should report numbers and dates that are not valid', () => {
     expect(errorsOf(extractShapeMetadataRow(row({ minResM: 'abc', mean: 'x', dateEnd: 'not a date' })))).toEqual([
       'ShapeMetadata: minResM must be a number',
-      'ShapeMetadata: mean must be a number',
       'ShapeMetadata: dateEnd must be a valid date',
+      'ShapeMetadata: mean must be a number',
     ]);
   });
 
