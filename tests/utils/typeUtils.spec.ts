@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { pickEnum } from '../../src/utils/typeUtils';
+import { isEmptyValue, pickEnum } from '../../src/utils/typeUtils';
 
 describe('pickEnum', () => {
   const source = { first: 'a', second: 'b', third: 'c' } as const;
@@ -16,5 +16,15 @@ describe('pickEnum', () => {
     const picked = pickEnum(source, ['second']);
 
     expect(picked.second).toBe('b');
+  });
+});
+
+describe('isEmptyValue', () => {
+  it.each([undefined, null, '', '   '])('should treat %j as empty', (value) => {
+    expect(isEmptyValue(value)).toBe(true);
+  });
+
+  it.each([0, 4326, false, 'AFL', { year: 2025, month: 7, day: 10 }])('should not treat %j as empty', (value) => {
+    expect(isEmptyValue(value)).toBe(false);
   });
 });

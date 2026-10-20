@@ -7,3 +7,5 @@ export const pickEnum = <T extends Record<string, string | number>, K extends ke
     {} as Pick<T, K>
   );
 };
+
+export const isEmptyValue = (value: unknown): boolean => value === undefined || value === null || (typeof value === 'string' && value.trim() === '');

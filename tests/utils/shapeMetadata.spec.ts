@@ -170,6 +170,39 @@ describe('extractShapeMetadataRow', () => {
     ]);
   });
 
+  it.each([
+    ['minResM', 0],
+    ['maxResM', 9000],
+    ['absCep90', -1],
+    ['absLep90', 1000],
+    ['relCep90', 1000],
+    ['absSep90', -0.5],
+  ])('should reject %s outside the allowed range (%d)', (field, value) => {
+    const overrides = field === 'maxResM' ? { [field]: value, minResM: 0.5 } : { [field]: value };
+
+    expect(errorsOf(extractShapeMetadataRow(row(overrides)))).toEqual([expect.stringMatching(`^ShapeMetadata: ${field} must be between`)]);
+  });
+
+  it('should reject a product name that is longer than the allowed length', () => {
+    expect(errorsOf(extractCommonShapeMetadata(common({ prodName: 'a'.repeat(121) })))).toEqual([
+      'ShapeMetadata: prodName must be at most 120 characters',
+    ]);
+  });
+
+  it('should reject a classification with characters other than letters and digits', () => {
+    expect(errorsOf(extractShapeMetadataRow(row({ classify: 'not valid!' })))).toEqual([
+      'ShapeMetadata: classify must contain only letters and digits',
+    ]);
+  });
+
+  it('should reject a product type that is not a 3D product type', () => {
+    expect(errorsOf(extractShapeMetadataRow(row({ prodType: 'Raster' })))).toEqual([expect.stringMatching('^ShapeMetadata: prodType ')]);
+  });
+
+  it('should reject sensors that contain only separators', () => {
+    expect(errorsOf(extractShapeMetadataRow(row({ sensors: ' , ' })))).toEqual(['ShapeMetadata: sensors must contain at least one value']);
+  });
+
   it('should reject a minimum resolution greater than the maximum', () => {
     expect(errorsOf(extractShapeMetadataRow(row({ minResM: 3, maxResM: 1 })))).toEqual(['ShapeMetadata: minResM must not be greater than maxResM']);
   });
