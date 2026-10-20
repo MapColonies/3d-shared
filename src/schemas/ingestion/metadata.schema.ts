@@ -27,8 +27,16 @@ export const aggregation3DMetadataSchema = z
     maxAbsoluteAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
     maxRelativeAccuracyCEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
     maxRelativeAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
-    maxAbsoluteAccuracySEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
-    maxRelativeAccuracySEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
+    maxAbsoluteAccuracySEP90: z
+      .number()
+      .min(INGESTION_VALIDATIONS.absoluteAccuracySep90.min)
+      .max(INGESTION_VALIDATIONS.absoluteAccuracySep90.max)
+      .optional(),
+    maxRelativeAccuracySEP90: z
+      .number()
+      .min(INGESTION_VALIDATIONS.relativeAccuracySep90.min)
+      .max(INGESTION_VALIDATIONS.relativeAccuracySep90.max)
+      .optional(),
     visualAccuracy: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
     maxResolutionMeter: z.number().min(INGESTION_VALIDATIONS.resolutionMeter.min).max(INGESTION_VALIDATIONS.resolutionMeter.max),
     minResolutionMeter: z.number().min(INGESTION_VALIDATIONS.resolutionMeter.min).max(INGESTION_VALIDATIONS.resolutionMeter.max),
