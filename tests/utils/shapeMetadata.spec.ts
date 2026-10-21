@@ -97,10 +97,14 @@ describe('extractShapeMetadataRow', () => {
     });
   });
 
-  it('should trim text and accept a numeric srsId and an ISO date', () => {
-    const result = extractShapeMetadataRow(row({ prodID: ' AFL ', srsId: 4326, prodDate: '2025-07-10T00:00:00.000Z' }));
+  it('should trim text and accept an ISO date', () => {
+    const result = extractShapeMetadataRow(row({ prodID: ' AFL ', prodDate: '2025-07-10T00:00:00.000Z' }));
 
-    expect(result).toMatchObject({ success: true, data: { productId: 'AFL', srsId: '4326', productionDate: '2025-07-10T00:00:00.000Z' } });
+    expect(result).toMatchObject({ success: true, data: { productId: 'AFL', productionDate: '2025-07-10T00:00:00.000Z' } });
+  });
+
+  it('should not convert a number into text', () => {
+    expect(errorsOf(row({ srsId: 4326 }))).toEqual(['ShapeMetadata: srsId must be text']);
   });
 
   it('should leave the optional and part data undefined when absent, null or blank', () => {
