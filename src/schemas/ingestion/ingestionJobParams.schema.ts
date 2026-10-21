@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { new3DLayerMetadataSchema } from './metadata.schema';
+import { ingestion3DMetadataSchema } from './metadata.schema';
 
 export const ingestion3DNewJobParamsSchema = z.object({
-  metadata: new3DLayerMetadataSchema,
+  metadata: ingestion3DMetadataSchema,
 });
 
 // export const ingestion3DUpdateJobParamsSchema = z.object({
