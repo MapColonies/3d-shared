@@ -184,11 +184,12 @@ describe('extractShapeMetadataRow', () => {
     });
   });
 
-  it('should accept numeric classification, description and algorithm values from the DBF', () => {
-    expect(extractShapeMetadataRow(row({ classify: 4, desc: 12, accAlg: 3 }))).toMatchObject({
-      success: true,
-      data: { classification: '4', description: '12', accAlg: '3' },
-    });
+  it('should reject numeric classification, description and algorithm values instead of converting them to text', () => {
+    expect(errorsOf(row({ classify: 4, desc: 12, accAlg: 3 }))).toEqual([
+      'ShapeMetadata: classify must be text',
+      'ShapeMetadata: desc must be text',
+      'ShapeMetadata: accAlg must be text',
+    ]);
   });
 
   it('should reject a product name that is longer than the allowed length', () => {

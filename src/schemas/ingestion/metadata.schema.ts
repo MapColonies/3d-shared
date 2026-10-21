@@ -3,6 +3,17 @@ import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../constants/core';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
 import { geometrySchema } from '../core/geo.schema';
 
+const accuracySchema = z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max);
+const absoluteAccuracySep90Schema = z
+  .number()
+  .min(INGESTION_VALIDATIONS.absoluteAccuracySep90.min)
+  .max(INGESTION_VALIDATIONS.absoluteAccuracySep90.max);
+const relativeAccuracySep90Schema = z
+  .number()
+  .min(INGESTION_VALIDATIONS.relativeAccuracySep90.min)
+  .max(INGESTION_VALIDATIONS.relativeAccuracySep90.max);
+const resolutionSchema = z.number().min(INGESTION_VALIDATIONS.resolutionMeter.min).max(INGESTION_VALIDATIONS.resolutionMeter.max);
+
 export const new3DLayerMetadataSchema = z.object({
   productType: z.enum(LAYER_3D_PRODUCT_TYPE_LIST as [string, ...string[]]),
   productSubType: z.string().optional(),
@@ -23,23 +34,15 @@ export const aggregation3DMetadataSchema = z
     footprint: geometrySchema,
     imagingTimeBeginUTC: z.coerce.date(),
     imagingTimeEndUTC: z.coerce.date(),
-    maxAbsoluteAccuracyCEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
-    maxAbsoluteAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max),
-    maxRelativeAccuracyCEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
-    maxRelativeAccuracyLEP90: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
-    maxAbsoluteAccuracySEP90: z
-      .number()
-      .min(INGESTION_VALIDATIONS.absoluteAccuracySep90.min)
-      .max(INGESTION_VALIDATIONS.absoluteAccuracySep90.max)
-      .optional(),
-    maxRelativeAccuracySEP90: z
-      .number()
-      .min(INGESTION_VALIDATIONS.relativeAccuracySep90.min)
-      .max(INGESTION_VALIDATIONS.relativeAccuracySep90.max)
-      .optional(),
-    visualAccuracy: z.number().min(INGESTION_VALIDATIONS.accuracy.min).max(INGESTION_VALIDATIONS.accuracy.max).optional(),
-    maxResolutionMeter: z.number().min(INGESTION_VALIDATIONS.resolutionMeter.min).max(INGESTION_VALIDATIONS.resolutionMeter.max),
-    minResolutionMeter: z.number().min(INGESTION_VALIDATIONS.resolutionMeter.min).max(INGESTION_VALIDATIONS.resolutionMeter.max),
+    maxAbsoluteAccuracyCEP90: accuracySchema,
+    maxAbsoluteAccuracyLEP90: accuracySchema,
+    maxRelativeAccuracyCEP90: accuracySchema.optional(),
+    maxRelativeAccuracyLEP90: accuracySchema.optional(),
+    maxAbsoluteAccuracySEP90: absoluteAccuracySep90Schema.optional(),
+    maxRelativeAccuracySEP90: relativeAccuracySep90Schema.optional(),
+    visualAccuracy: accuracySchema.optional(),
+    maxResolutionMeter: resolutionSchema,
+    minResolutionMeter: resolutionSchema,
     heightRangeFrom: z.number().optional(),
     heightRangeTo: z.number().optional(),
     minFlightAlt: z.number().optional(),
