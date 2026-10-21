@@ -22,9 +22,9 @@ const numberSchema = z.number({ errorMap: errorMap(MESSAGES.number) }).finite(ME
 const rangeSchema = ({ min, max }: { min: number; max: number }): z.ZodNumber =>
   numberSchema.min(min, `must be between ${min} and ${max}`).max(max, `must be between ${min} and ${max}`);
 
-const resolutionSchema = rangeSchema(INGESTION_VALIDATIONS.resolutionMeter);
+const resolutionMeterSchema = rangeSchema(INGESTION_VALIDATIONS.resolutionMeter);
 const accuracySchema = rangeSchema(INGESTION_VALIDATIONS.accuracy);
 const absoluteAccuracySep90Schema = rangeSchema(INGESTION_VALIDATIONS.absoluteAccuracySep90);
 const relativeAccuracySep90Schema = rangeSchema(INGESTION_VALIDATIONS.relativeAccuracySep90);
 
-export { MESSAGES, errorMap, numberSchema, resolutionSchema, accuracySchema, absoluteAccuracySep90Schema, relativeAccuracySep90Schema };
+export { MESSAGES, errorMap, numberSchema, resolutionMeterSchema, accuracySchema, absoluteAccuracySep90Schema, relativeAccuracySep90Schema };
