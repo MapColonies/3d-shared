@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { ingestion3DPayloadSchema, ingestion3DDeleteJobParamsSchema } from '../../schemas/ingestion/ingestionJobParams.schema';
+import type { ingestion3DPayloadSchema, ingestion3DDeleteJobParamsSchema } from '../../schemas/ingestion/payloads.schema';
 import type { shapeMetadataRowSchema } from '../../schemas/ingestion/shapeMetadata.schema';
 
 export type Ingestion3DPayload = z.infer<typeof ingestion3DPayloadSchema>;

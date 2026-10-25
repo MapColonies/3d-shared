@@ -6,8 +6,8 @@ export const ingestion3DPayloadSchema = z.object({
   productType: z.enum(LAYER_3D_PRODUCT_TYPE_LIST as [string, ...string[]]),
   productSubType: z.string().optional(),
   description: z.string().optional(),
-  classification: z.string(),
-  region: z.array(z.string()).min(INGESTION_VALIDATIONS.region.minItems),
+  classification: z.string().trim().regex(new RegExp(INGESTION_VALIDATIONS.classification.pattern)),
+  region: z.array(z.string().trim().min(1)).min(INGESTION_VALIDATIONS.region.minItems),
 });
 
 // TODO: waiting for product
@@ -52,5 +52,5 @@ export const ingestion3DPayloadSchema = z.object({
 // });
 
 export const ingestion3DDeleteJobParamsSchema = z.object({
-  productId: z.string(),
+  productId: z.string().trim().min(1),
 });

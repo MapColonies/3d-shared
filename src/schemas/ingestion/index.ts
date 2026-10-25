@@ -1,2 +1,2 @@
-export * from './ingestionJobParams.schema';
+export * from './payloads.schema';
 export * from './shapeMetadata.schema';

@@ -1,35 +1,80 @@
 import { describe, it, expect } from 'vitest';
-import { ingestion3DPayloadSchema, ingestion3DDeleteJobParamsSchema } from '../../src/schemas/ingestion/ingestionJobParams.schema';
+import { ingestion3DPayloadSchema, ingestion3DDeleteJobParamsSchema } from '../../src/schemas/ingestion/payloads.schema';
 import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../src/constants/core';
 
 const validPayload = {
   productType: LAYER_3D_PRODUCT_TYPE_LIST[0],
   classification: 'abc123',
-  region: ['ישראל'],
+  region: ['France'],
 };
 
 describe('ingestion3DPayloadSchema', () => {
-  it('should accept a valid metadata object', () => {
-    expect(ingestion3DPayloadSchema.safeParse(validPayload).success).toBe(true);
+  const issuePaths = (payload: Record<string, unknown>): string[] => {
+    const result = ingestion3DPayloadSchema.safeParse(payload);
+    return result.success ? [] : result.error.issues.map((issue) => issue.path.join('.'));
+  };
+
+  it('should accept a valid payload', () => {
+    expect(ingestion3DPayloadSchema.safeParse(validPayload)).toEqual({ success: true, data: validPayload });
   });
 
-  it('should reject a productType outside the allowed 3D list', () => {
-    const bad = { ...validPayload, productType: 'NOT_A_3D_TYPE' };
-
-    expect(ingestion3DPayloadSchema.safeParse(bad).success).toBe(false);
+  it.each(LAYER_3D_PRODUCT_TYPE_LIST)('should accept the product type %s', (productType) => {
+    expect(ingestion3DPayloadSchema.safeParse({ ...validPayload, productType }).success).toBe(true);
   });
 
-  it('should reject an empty region array', () => {
-    const bad = { ...validPayload, region: [] };
-
-    expect(ingestion3DPayloadSchema.safeParse(bad).success).toBe(false);
+  it.each([{ productType: 'NOT_A_3D_TYPE' }, { productType: '' }, { productType: 1 }])('should reject the product type %o', (override) => {
+    expect(issuePaths({ ...validPayload, ...override })).toEqual(['productType']);
   });
 
-  it('should reject when a required field is missing', () => {
-    const missing = { ...validPayload };
-    delete (missing as Partial<typeof validPayload>).classification;
+  it.each(['productType', 'classification', 'region'])('should reject a payload without the mandatory field %s', (field) => {
+    const missing: Record<string, unknown> = { ...validPayload };
+    delete missing[field];
 
-    expect(ingestion3DPayloadSchema.safeParse(missing).success).toBe(false);
+    expect(issuePaths(missing)).toEqual([field]);
+  });
+
+  it.each([
+    { region: [] },
+    { region: undefined },
+    { region: null },
+    { region: 'bla bla' },
+    { region: [''] },
+    { region: [' '] },
+    { region: ['France', ''] },
+    { region: [1] },
+  ])('should reject the region %o', (override) => {
+    expect(issuePaths({ ...validPayload, ...override })).toEqual([expect.stringMatching(/^region/)]);
+  });
+
+  it('should accept several regions and trim them', () => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, region: [' France ', 'USA'] }).region).toEqual(['France', 'USA']);
+  });
+
+  it.each([{ classification: '' }, { classification: ' ' }, { classification: 'not valid!' }, { classification: 4 }])(
+    'should reject the classification %o',
+    (override) => {
+      expect(issuePaths({ ...validPayload, ...override })).toEqual(['classification']);
+    }
+  );
+
+  it.each([{ productSubType: 'mesh' }, { description: 'a description' }, { productSubType: 'mesh', description: 'a description' }])(
+    'should accept the optional fields %o',
+    (optionals) => {
+      expect(ingestion3DPayloadSchema.parse({ ...validPayload, ...optionals })).toEqual({ ...validPayload, ...optionals });
+    }
+  );
+
+  it.each([
+    ['productSubType', 1],
+    ['description', 1],
+    ['productSubType', null],
+    ['description', ['text']],
+  ])('should reject the optional field %s with the value %o', (field, value) => {
+    expect(issuePaths({ ...validPayload, [field]: value })).toEqual([field]);
+  });
+
+  it('should drop unknown fields', () => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, unknown: 'x' })).toEqual(validPayload);
   });
 });
 
@@ -122,7 +167,7 @@ describe('ingestion3DPayloadSchema', () => {
 //       heightRangeTo: 120,
 //       minFlightAlt: 100,
 //       maxFlightAlt: 400,
-//       geographicArea: 'ישראל',
+//       geographicArea: 'France',
 //     };
 //
 //     expect(aggregation3DMetadataSchema.safeParse(withOptionals).success).toBe(true);
@@ -172,7 +217,7 @@ describe('ingestion3DDeleteJobParamsSchema', () => {
     expect(ingestion3DDeleteJobParamsSchema.safeParse({}).success).toBe(false);
   });
 
-  it('should reject a non-string productId', () => {
-    expect(ingestion3DDeleteJobParamsSchema.safeParse({ productId: 123 }).success).toBe(false);
+  it.each([123, '', ' '])('should reject the productId %o', (productId) => {
+    expect(ingestion3DDeleteJobParamsSchema.safeParse({ productId }).success).toBe(false);
   });
 });

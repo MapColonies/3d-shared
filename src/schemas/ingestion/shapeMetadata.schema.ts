@@ -37,7 +37,10 @@ const productTypeSchema = z.enum(LAYER_3D_PRODUCT_TYPE_LIST as [string, ...strin
 const dateSchema = z.preprocess(
   (value) => {
     if (typeof value === 'object' && value !== null && 'year' in value && 'month' in value && 'day' in value) {
-      return new Date(Date.UTC(Number(value.year), Number(value.month) - 1, Number(value.day)));
+      const [year, month, day] = [Number(value.year), Number(value.month), Number(value.day)];
+      const date = new Date(Date.UTC(year, month - 1, day));
+      const isRealDay = date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+      return isRealDay ? date : new Date(Number.NaN);
     }
     return typeof value === 'string' ? new Date(value) : value;
   },
@@ -75,7 +78,7 @@ export const shapeMetadataRowSchema = z
     [FIELDS.absCep90]: accuracySchema,
     [FIELDS.absLep90]: accuracySchema,
     [FIELDS.sensors]: sensorsSchema,
-    [FIELDS.id]: numberSchema,
+    [FIELDS.id]: numberSchema.int(MESSAGES.integer).nonnegative(MESSAGES.integer),
     [FIELDS.prodType]: productTypeSchema,
     [FIELDS.classify]: classificationSchema,
     [FIELDS.countries]: regionsSchema,
@@ -92,6 +95,7 @@ export const shapeMetadataRowSchema = z
   })
   .refine((row) => row.minResM <= row.maxResM, { path: [FIELDS.minResM], message: `must not be greater than ${FIELDS.maxResM}` })
   .refine((row) => row.dateStart <= row.dateEnd, { path: [FIELDS.dateStart], message: `must not be later than ${FIELDS.dateEnd}` })
+  .refine((row) => row.dateEnd <= new Date(), { path: [FIELDS.dateEnd], message: 'must not be in the future' })
   .transform((row) => ({
     productId: row.prodID,
     productName: row.prodName,
