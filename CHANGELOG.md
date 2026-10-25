@@ -1,7 +1,12 @@
 # Changelog
 
+## 1.0.0 (2026-10-25)
+
+
 ### Features
 
-* addd 3d-shared package with CI/CD ([8f34179](https://github.com/MapColonies/3d-shared/commit/8f341790032a499b23edf57f6f76d6acd862ab23))
+* Full shapefile metadata row extraction and schema validation
+* 3D Core type definitions and schema validations
+* 3D Ingestion Payload Definitions And Scheme Validations
 
 ### Bug Fixes
