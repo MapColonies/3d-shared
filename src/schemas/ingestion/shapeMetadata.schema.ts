@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../constants/core';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
 import { SHAPE_METADATA_FIELDS, SHAPE_METADATA_LIST_SEPARATOR } from '../../constants/ingestion/shapeMetadata';
 import {
@@ -13,7 +12,6 @@ import {
 } from './common.schema';
 
 const FIELDS = SHAPE_METADATA_FIELDS;
-const CLASSIFICATION_PATTERN = new RegExp(INGESTION_VALIDATIONS.classification.pattern);
 
 const blankToUndefined = (value: unknown): unknown => (value === null || (typeof value === 'string' && value.trim() === '') ? undefined : value);
 
@@ -27,12 +25,6 @@ const textSchema = trimmedTextSchema.min(1, MESSAGES.mandatory);
 const productNameSchema = trimmedTextSchema
   .min(1, MESSAGES.mandatory)
   .max(INGESTION_VALIDATIONS.productName.maxLength, `must be at most ${INGESTION_VALIDATIONS.productName.maxLength} characters`);
-
-const classificationSchema = trimmedTextSchema.regex(CLASSIFICATION_PATTERN, MESSAGES.classification);
-
-const productTypeSchema = z.enum(LAYER_3D_PRODUCT_TYPE_LIST as [string, ...string[]], {
-  errorMap: errorMap(`must be one of: ${LAYER_3D_PRODUCT_TYPE_LIST.join(', ')}`),
-});
 
 const dateSchema = z.preprocess(
   (value) => {
@@ -81,8 +73,6 @@ export const shapeMetadataRowSchema = z
     [FIELDS.absLep90]: accuracySchema,
     [FIELDS.sensors]: sensorsSchema,
     [FIELDS.id]: numberSchema.int(MESSAGES.integer).nonnegative(MESSAGES.integer),
-    [FIELDS.prodType]: productTypeSchema,
-    [FIELDS.classify]: classificationSchema,
     [FIELDS.countries]: regionsSchema,
     [FIELDS.absSep90]: optional(absoluteAccuracySep90Schema),
     [FIELDS.relCep90]: optional(accuracySchema),
@@ -119,9 +109,7 @@ export const shapeMetadataRowSchema = z
     maxRelativeAccuracySEP90: row.relSep90,
     sensors: row.sensors,
     partId: row.id,
-    productType: row.prodType,
     description: row.desc,
-    classification: row.classify,
     countries: row.countries,
     cities: row.cities,
     inliersAmt: row.inliersAmt,

@@ -33,6 +33,10 @@ describe('ingestion3DPayloadSchema', () => {
     expect(issuePaths(missing)).toEqual([field]);
   });
 
+  it.each(['productType', 'classification', 'region'])('should reject a payload with a null mandatory field %s', (field) => {
+    expect(issuePaths({ ...validPayload, [field]: null })).toEqual([field]);
+  });
+
   it.each([
     { region: [] },
     { region: undefined },
@@ -58,6 +62,14 @@ describe('ingestion3DPayloadSchema', () => {
     expect(ingestion3DPayloadSchema.parse({ ...validPayload, region: [' France ', 'USA'] }).region).toEqual(['France', 'USA']);
   });
 
+  it.each([
+    { classification: '4', expected: '4' },
+    { classification: 'ABC', expected: 'ABC' },
+    { classification: ' abc123 ', expected: 'abc123' },
+  ])('should accept the classification $classification', ({ classification, expected }) => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, classification }).classification).toBe(expected);
+  });
+
   it.each([{ classification: '' }, { classification: ' ' }, { classification: 'not valid!' }, { classification: 4 }])(
     'should reject the classification %o',
     (override) => {
@@ -65,18 +77,22 @@ describe('ingestion3DPayloadSchema', () => {
     }
   );
 
-  it.each([{ productSubType: 'mesh' }, { description: 'a description' }, { productSubType: 'mesh', description: 'a description' }])(
-    'should accept the optional fields %o',
-    (optionals) => {
-      expect(ingestion3DPayloadSchema.parse({ ...validPayload, ...optionals })).toEqual({ ...validPayload, ...optionals });
-    }
-  );
+  it.each([
+    { productSubType: 'mesh' },
+    { description: 'a description' },
+    { keywords: 'city,model' },
+    { productSubType: 'mesh', description: 'a description', keywords: 'city,model' },
+  ])('should accept the optional fields %o', (optionals) => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, ...optionals })).toEqual({ ...validPayload, ...optionals });
+  });
 
   it.each([
     ['productSubType', 1],
     ['description', 1],
     ['productSubType', null],
     ['description', ['text']],
+    ['keywords', 1],
+    ['keywords', ['city']],
   ])('should reject the optional field %s with the value %o', (field, value) => {
     expect(issuePaths({ ...validPayload, [field]: value })).toEqual([field]);
   });

@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { extractShapeMetadataRow } from '../../src/utils/shapeMetadata';
 import { SHAPE_METADATA_FIELDS } from '../../src/constants/ingestion/shapeMetadata';
-import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../src/constants/core';
 
 const row = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
   prodID: 'AFL',
@@ -20,8 +19,6 @@ const row = (overrides: Record<string, unknown> = {}): Record<string, unknown> =
   absLep90: 3,
   sensors: 'UAV, OTHER',
   id: 1,
-  prodType: '3DPhotoRealistic',
-  classify: '4',
   countries: 'France',
   ...overrides,
 });
@@ -43,8 +40,6 @@ const MANDATORY_FIELDS = [
   'absLep90',
   'sensors',
   'id',
-  'prodType',
-  'classify',
   'countries',
 ];
 
@@ -108,9 +103,7 @@ describe('extractShapeMetadataRow', () => {
           maxRelativeAccuracySEP90: 2,
           sensors: ['UAV', 'OTHER'],
           partId: 7,
-          productType: '3DPhotoRealistic',
           description: 'a part',
-          classification: '4',
           countries: ['France', 'USA'],
           cities: ['Afula'],
           inliersAmt: 12,
@@ -193,34 +186,6 @@ describe('extractShapeMetadataRow', () => {
 
     it.each(['desc', 'accAlg'])('should reject a non-text value in the optional text %s', (field) => {
       expect(errorsOf(row({ [field]: 12 }))).toEqual([`ShapeMetadata: ${field} must be text`]);
-    });
-  });
-
-  describe('product type', () => {
-    it.each(LAYER_3D_PRODUCT_TYPE_LIST)('should accept %s', (prodType) => {
-      expect(extractShapeMetadataRow(row({ prodType }))).toMatchObject({ success: true, data: { productType: prodType } });
-    });
-
-    it.each([{ value: 'Raster' }, { value: '' }, { value: 1 }])('should reject $value', ({ value }) => {
-      expect(errorsOf(row({ prodType: value }))).toEqual([expect.stringMatching('^ShapeMetadata: prodType must be one of: 3DPhotoRealistic')]);
-    });
-  });
-
-  describe('classification', () => {
-    it.each([
-      { value: '4', expected: '4' },
-      { value: ' 4 ', expected: '4' },
-      { value: 'abc123', expected: 'abc123' },
-    ])('should accept $value', ({ value, expected }) => {
-      expect(extractShapeMetadataRow(row({ classify: value }))).toMatchObject({ success: true, data: { classification: expected } });
-    });
-
-    it.each([{ value: 'not valid!' }, { value: '' }, { value: '4-5' }])('should reject $value', ({ value }) => {
-      expect(errorsOf(row({ classify: value }))).toEqual(['ShapeMetadata: classify must contain only letters and digits']);
-    });
-
-    it('should reject a number instead of converting it to text', () => {
-      expect(errorsOf(row({ classify: 4 }))).toEqual(['ShapeMetadata: classify must be text']);
     });
   });
 
