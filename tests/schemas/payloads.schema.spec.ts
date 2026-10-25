@@ -1,0 +1,247 @@
+import { describe, it, expect } from 'vitest';
+import { ingestion3DPayloadSchema, ingestion3DDeleteJobParamsSchema } from '../../src/schemas/ingestion/payloads.schema';
+import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../src/constants/core';
+
+const validPayload = {
+  productType: LAYER_3D_PRODUCT_TYPE_LIST[0],
+  classification: 'abc123',
+  region: ['France'],
+};
+
+describe('ingestion3DPayloadSchema', () => {
+  const issuePaths = (payload: Record<string, unknown>): string[] => {
+    const result = ingestion3DPayloadSchema.safeParse(payload);
+    return result.success ? [] : result.error.issues.map((issue) => issue.path.join('.'));
+  };
+
+  it('should accept a valid payload', () => {
+    expect(ingestion3DPayloadSchema.safeParse(validPayload)).toEqual({ success: true, data: validPayload });
+  });
+
+  it.each(LAYER_3D_PRODUCT_TYPE_LIST)('should accept the product type %s', (productType) => {
+    expect(ingestion3DPayloadSchema.safeParse({ ...validPayload, productType }).success).toBe(true);
+  });
+
+  it.each([{ productType: 'NOT_A_3D_TYPE' }, { productType: '' }, { productType: 1 }])('should reject the product type %o', (override) => {
+    expect(issuePaths({ ...validPayload, ...override })).toEqual(['productType']);
+  });
+
+  it.each(['productType', 'classification', 'region'])('should reject a payload without the mandatory field %s', (field) => {
+    const missing: Record<string, unknown> = { ...validPayload };
+    delete missing[field];
+
+    expect(issuePaths(missing)).toEqual([field]);
+  });
+
+  it.each(['productType', 'classification', 'region'])('should reject a payload with a null mandatory field %s', (field) => {
+    expect(issuePaths({ ...validPayload, [field]: null })).toEqual([field]);
+  });
+
+  it.each([
+    { region: [] },
+    { region: undefined },
+    { region: null },
+    { region: 'bla bla' },
+    { region: [''] },
+    { region: [' '] },
+    { region: ['France', ''] },
+    { region: [1] },
+  ])('should reject the region %o', (override) => {
+    expect(issuePaths({ ...validPayload, ...override })).toEqual([expect.stringMatching(/^region/)]);
+  });
+
+  it.each([
+    { region: ['France', 'France'], expected: ['France'] },
+    { region: ['France', ' France '], expected: ['France'] },
+    { region: ['Texas', 'Paris', 'London', 'Paris', 'Texas', 'Texas'], expected: ['Texas', 'Paris', 'London'] },
+  ])('should join repeated regions $region into $expected', ({ region, expected }) => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, region }).region).toEqual(expected);
+  });
+
+  it('should accept several regions and trim them', () => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, region: [' France ', 'USA'] }).region).toEqual(['France', 'USA']);
+  });
+
+  it.each([
+    { classification: '4', expected: '4' },
+    { classification: 'ABC', expected: 'ABC' },
+    { classification: ' abc123 ', expected: 'abc123' },
+  ])('should accept the classification $classification', ({ classification, expected }) => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, classification }).classification).toBe(expected);
+  });
+
+  it.each([{ classification: '' }, { classification: ' ' }, { classification: 'not valid!' }, { classification: 4 }])(
+    'should reject the classification %o',
+    (override) => {
+      expect(issuePaths({ ...validPayload, ...override })).toEqual(['classification']);
+    }
+  );
+
+  it.each([
+    { productSubType: 'mesh' },
+    { description: 'a description' },
+    { keywords: 'city,model' },
+    { productSubType: 'mesh', description: 'a description', keywords: 'city,model' },
+  ])('should accept the optional fields %o', (optionals) => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, ...optionals })).toEqual({ ...validPayload, ...optionals });
+  });
+
+  it.each([
+    ['productSubType', 1],
+    ['description', 1],
+    ['productSubType', null],
+    ['description', ['text']],
+    ['keywords', 1],
+    ['keywords', ['city']],
+  ])('should reject the optional field %s with the value %o', (field, value) => {
+    expect(issuePaths({ ...validPayload, [field]: value })).toEqual([field]);
+  });
+
+  it('should drop unknown fields', () => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, unknown: 'x' })).toEqual(validPayload);
+  });
+});
+
+/* eslint-disable vitest/no-commented-out-tests -- restore with update3DLayerMetadataSchema */
+// describe('update3DLayerMetadataSchema', () => {
+//   it('should accept an empty object (all fields optional)', () => {
+//     expect(update3DLayerMetadataSchema.safeParse({}).success).toBe(true);
+//   });
+//
+//   it('should accept a partial update', () => {
+//     expect(update3DLayerMetadataSchema.safeParse({ description: 'updated' }).success).toBe(true);
+//   });
+//
+//   it('should reject a productName over the max length', () => {
+//     const bad = { productName: 'a'.repeat(INGESTION_VALIDATIONS.productName.maxLength + 1) };
+//     expect(update3DLayerMetadataSchema.safeParse(bad).success).toBe(false);
+//   });
+// });
+/* eslint-enable vitest/no-commented-out-tests */
+
+/* eslint-disable vitest/no-commented-out-tests -- restore with aggregation3DMetadataSchema */
+// describe('aggregation3DMetadataSchema', () => {
+//   const validAggregation = {
+//     footprint: {
+//       type: 'Polygon',
+//       coordinates: [
+//         [
+//           [34.45, 31.48],
+//           [34.46, 31.48],
+//           [34.46, 31.49],
+//           [34.45, 31.48],
+//         ],
+//       ],
+//     },
+//     imagingTimeBeginUTC: new Date('2025-07-06T11:10:00.000Z'),
+//     imagingTimeEndUTC: new Date('2025-07-10T11:10:00.000Z'),
+//     maxAbsoluteAccuracyCEP90: 1,
+//     maxAbsoluteAccuracyLEP90: 1,
+//     maxRelativeAccuracyCEP90: 1,
+//     maxRelativeAccuracyLEP90: 1,
+//     maxResolutionMeter: 1,
+//     minResolutionMeter: 0.5,
+//     productBoundingBox: '34.45,31.48,34.46,31.49',
+//     sensors: ['sensor-1'],
+//   };
+//
+//   it('should accept a valid aggregation', () => {
+//     expect(aggregation3DMetadataSchema.safeParse(validAggregation).success).toBe(true);
+//   });
+//
+//   it('should reject when imagingTimeBeginUTC is after imagingTimeEndUTC', () => {
+//     const bad = { ...validAggregation, imagingTimeBeginUTC: new Date('2025-07-11T00:00:00.000Z') };
+//     const result = aggregation3DMetadataSchema.safeParse(bad);
+//
+//     expect(result.success).toBe(false);
+//   });
+//
+//   it('should reject unknown keys (schema is strict)', () => {
+//     const bad = { ...validAggregation, unexpected: true };
+//
+//     expect(aggregation3DMetadataSchema.safeParse(bad).success).toBe(false);
+//   });
+//
+//   it('should reject a resolutionMeter below the minimum', () => {
+//     const bad = { ...validAggregation, minResolutionMeter: INGESTION_VALIDATIONS.resolutionMeter.min / 2 };
+//
+//     expect(aggregation3DMetadataSchema.safeParse(bad).success).toBe(false);
+//   });
+//
+//   it('should reject an empty sensors array', () => {
+//     const bad = { ...validAggregation, sensors: [] };
+//
+//     expect(aggregation3DMetadataSchema.safeParse(bad).success).toBe(false);
+//   });
+//
+//   it('should coerce ISO date strings for imagingTimeBeginUTC/imagingTimeEndUTC', () => {
+//     const withStringDates = { ...validAggregation, imagingTimeBeginUTC: '2025-07-06T11:10:00.000Z', imagingTimeEndUTC: '2025-07-10T11:10:00.000Z' };
+//     const result = aggregation3DMetadataSchema.safeParse(withStringDates);
+//
+//     expect(result.success).toBe(true);
+//   });
+//
+//   it('should accept the optional v2 fields (visualAccuracy, heightRange, flightAlt, geographicArea, SEP90 accuracies)', () => {
+//     const withOptionals = {
+//       ...validAggregation,
+//       visualAccuracy: 50,
+//       maxAbsoluteAccuracySEP90: 100,
+//       maxRelativeAccuracySEP90: 50,
+//       heightRangeFrom: 0,
+//       heightRangeTo: 120,
+//       minFlightAlt: 100,
+//       maxFlightAlt: 400,
+//       geographicArea: 'France',
+//     };
+//
+//     expect(aggregation3DMetadataSchema.safeParse(withOptionals).success).toBe(true);
+//   });
+//
+//   it('should reject maxRelativeAccuracySEP90 above the accuracy max bound', () => {
+//     const bad = { ...validAggregation, maxRelativeAccuracySEP90: INGESTION_VALIDATIONS.accuracy.max + 1 };
+//
+//     expect(aggregation3DMetadataSchema.safeParse(bad).success).toBe(false);
+//   });
+//
+//   it('should accept aggregation without the optional relative CEP90/LEP90 accuracies', () => {
+//     const withoutRelative = { ...validAggregation };
+//     delete (withoutRelative as Record<string, unknown>).maxRelativeAccuracyCEP90;
+//     delete (withoutRelative as Record<string, unknown>).maxRelativeAccuracyLEP90;
+//
+//     expect(aggregation3DMetadataSchema.safeParse(withoutRelative).success).toBe(true);
+//   });
+//
+//   it('should reject aggregation missing a mandatory accuracy (maxAbsoluteAccuracyCEP90)', () => {
+//     const missingMandatory = { ...validAggregation };
+//     delete (missingMandatory as Record<string, unknown>).maxAbsoluteAccuracyCEP90;
+//
+//     expect(aggregation3DMetadataSchema.safeParse(missingMandatory).success).toBe(false);
+//   });
+// });
+/* eslint-enable vitest/no-commented-out-tests */
+
+/* eslint-disable vitest/no-commented-out-tests -- restore with update3DLayerMetadataSchema */
+// describe('ingestion3DUpdateJobParamsSchema', () => {
+//   it('should accept params with a partial metadata update', () => {
+//     expect(ingestion3DUpdateJobParamsSchema.safeParse({ metadata: { description: 'x' } }).success).toBe(true);
+//   });
+//
+//   it('should accept params with empty metadata (all update fields optional)', () => {
+//     expect(ingestion3DUpdateJobParamsSchema.safeParse({ metadata: {} }).success).toBe(true);
+//   });
+// });
+/* eslint-enable vitest/no-commented-out-tests */
+
+describe('ingestion3DDeleteJobParamsSchema', () => {
+  it('should accept a productId string', () => {
+    expect(ingestion3DDeleteJobParamsSchema.safeParse({ productId: 'p-1' }).success).toBe(true);
+  });
+
+  it('should reject a missing productId', () => {
+    expect(ingestion3DDeleteJobParamsSchema.safeParse({}).success).toBe(false);
+  });
+
+  it.each([123, '', ' '])('should reject the productId %o', (productId) => {
+    expect(ingestion3DDeleteJobParamsSchema.safeParse({ productId }).success).toBe(false);
+  });
+});

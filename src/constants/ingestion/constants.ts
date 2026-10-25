@@ -13,6 +13,14 @@ export const INGESTION_VALIDATIONS = {
     min: 0,
     max: 999,
   },
+  absoluteAccuracySep90: {
+    min: 0,
+    max: 250,
+  },
+  relativeAccuracySep90: {
+    min: 0,
+    max: 100,
+  },
   sensors: {
     minItems: 1,
   },
