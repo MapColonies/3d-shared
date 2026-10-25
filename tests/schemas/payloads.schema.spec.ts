@@ -46,6 +46,14 @@ describe('ingestion3DPayloadSchema', () => {
     expect(issuePaths({ ...validPayload, ...override })).toEqual([expect.stringMatching(/^region/)]);
   });
 
+  it.each([
+    { region: ['France', 'France'], expected: ['France'] },
+    { region: ['France', ' France '], expected: ['France'] },
+    { region: ['Texas', 'Paris', 'London', 'Paris', 'Texas', 'Texas'], expected: ['Texas', 'Paris', 'London'] },
+  ])('should join repeated regions $region into $expected', ({ region, expected }) => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, region }).region).toEqual(expected);
+  });
+
   it('should accept several regions and trim them', () => {
     expect(ingestion3DPayloadSchema.parse({ ...validPayload, region: [' France ', 'USA'] }).region).toEqual(['France', 'USA']);
   });

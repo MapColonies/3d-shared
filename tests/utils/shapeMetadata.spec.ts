@@ -353,7 +353,10 @@ describe('extractShapeMetadataRow', () => {
       { value: ' A , B ', expected: ['A', 'B'] },
       { value: 'A,', expected: ['A'] },
       { value: ',A,,B,', expected: ['A', 'B'] },
-    ])('should split $value into $expected', ({ value, expected }) => {
+      { value: 'UAV,UAV', expected: ['UAV'] },
+      { value: 'A, A ,A', expected: ['A'] },
+      { value: 'Texas,Paris,London,Paris,Texas,Texas', expected: ['Texas', 'Paris', 'London'] },
+    ])('should split $value into $expected without repeats', ({ value, expected }) => {
       expect(extractShapeMetadataRow(row({ [field]: value }))).toMatchObject({ success: true, data: { [field]: expected } });
     });
   });

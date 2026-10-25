@@ -50,12 +50,14 @@ const dateSchema = z.preprocess(
 const listSchema = (minItems: number): z.ZodEffects<z.ZodEffects<z.ZodString, string[], string>, string[], string> =>
   z
     .string({ errorMap: errorMap(MESSAGES.list) })
-    .transform((value) =>
-      value
-        .split(SHAPE_METADATA_LIST_SEPARATOR)
-        .map((item) => item.trim())
-        .filter((item) => item !== '')
-    )
+    .transform((value) => [
+      ...new Set(
+        value
+          .split(SHAPE_METADATA_LIST_SEPARATOR)
+          .map((item) => item.trim())
+          .filter((item) => item !== '')
+      ),
+    ])
     .refine((items) => items.length >= minItems, MESSAGES.list);
 
 const sensorsSchema = listSchema(INGESTION_VALIDATIONS.sensors.minItems);

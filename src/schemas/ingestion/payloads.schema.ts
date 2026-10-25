@@ -7,7 +7,10 @@ export const ingestion3DPayloadSchema = z.object({
   productSubType: z.string().optional(),
   description: z.string().optional(),
   classification: z.string().trim().regex(new RegExp(INGESTION_VALIDATIONS.classification.pattern)),
-  region: z.array(z.string().trim().min(1)).min(INGESTION_VALIDATIONS.region.minItems),
+  region: z
+    .array(z.string().trim().min(1))
+    .min(INGESTION_VALIDATIONS.region.minItems)
+    .transform((regions) => [...new Set(regions)]),
 });
 
 // TODO: waiting for product
