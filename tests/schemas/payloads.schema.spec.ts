@@ -3,6 +3,9 @@ import { ingestion3DPayloadSchema, ingestion3DDeleteJobParamsSchema } from '../.
 import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../src/constants/core';
 
 const validPayload = {
+  modelPath: '\\\\share\\models\\afula\\data\\tileset.json',
+  productShapefilePath: '\\\\share\\models\\afula\\shape\\Product.shp',
+  metadataShapefilePath: '\\\\share\\models\\afula\\shape\\ShapeMetadata.shp',
   productType: LAYER_3D_PRODUCT_TYPE_LIST[0],
   classification: 'abc123',
   region: ['France'],
@@ -26,15 +29,32 @@ describe('ingestion3DPayloadSchema', () => {
     expect(issuePaths({ ...validPayload, ...override })).toEqual(['productType']);
   });
 
-  it.each(['productType', 'classification', 'region'])('should reject a payload without the mandatory field %s', (field) => {
-    const missing: Record<string, unknown> = { ...validPayload };
-    delete missing[field];
+  it.each(['modelPath', 'productShapefilePath', 'metadataShapefilePath', 'productType', 'classification', 'region'])(
+    'should reject a payload without the mandatory field %s',
+    (field) => {
+      const missing: Record<string, unknown> = { ...validPayload };
+      delete missing[field];
 
-    expect(issuePaths(missing)).toEqual([field]);
-  });
+      expect(issuePaths(missing)).toEqual([field]);
+    }
+  );
 
-  it.each(['productType', 'classification', 'region'])('should reject a payload with a null mandatory field %s', (field) => {
-    expect(issuePaths({ ...validPayload, [field]: null })).toEqual([field]);
+  it.each(['modelPath', 'productShapefilePath', 'metadataShapefilePath', 'productType', 'classification', 'region'])(
+    'should reject a payload with a null mandatory field %s',
+    (field) => {
+      expect(issuePaths({ ...validPayload, [field]: null })).toEqual([field]);
+    }
+  );
+
+  it.each(['modelPath', 'productShapefilePath', 'metadataShapefilePath'].flatMap((field) => ['', ' ', 1].map((value) => ({ field, value }))))(
+    'should reject the $field value $value',
+    ({ field, value }) => {
+      expect(issuePaths({ ...validPayload, [field]: value })).toEqual([field]);
+    }
+  );
+
+  it('should trim the paths', () => {
+    expect(ingestion3DPayloadSchema.parse({ ...validPayload, modelPath: ` ${validPayload.modelPath} ` }).modelPath).toBe(validPayload.modelPath);
   });
 
   it.each([

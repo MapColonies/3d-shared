@@ -3,6 +3,9 @@ import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../constants/core';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
 
 export const ingestion3DPayloadSchema = z.object({
+  modelPath: z.string().trim().min(1),
+  productShapefilePath: z.string().trim().min(1),
+  metadataShapefilePath: z.string().trim().min(1),
   productType: z.enum(LAYER_3D_PRODUCT_TYPE_LIST as [string, ...string[]]),
   productSubType: z.string().optional(),
   description: z.string().optional(),
