@@ -28,7 +28,6 @@ export const SHAPE_METADATA_FIELDS = {
   accAlg: 'accAlg',
   mean: 'mean',
   std: 'std',
-  isTile: 'isTile',
 } as const;
 
 export const SHAPE_METADATA_LIST_SEPARATOR = ',';
