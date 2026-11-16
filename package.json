@@ -9,6 +9,17 @@
     ".": {
       "types": "./dist/index.d.ts",
       "require": "./dist/index.js"
+    },
+    "./tileset": {
+      "types": "./dist/tileset.d.ts",
+      "require": "./dist/tileset.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "tileset": [
+        "./dist/tileset.d.ts"
+      ]
     }
   },
   "scripts": {
