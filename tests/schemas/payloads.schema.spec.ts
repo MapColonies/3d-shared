@@ -253,15 +253,19 @@ describe('ingestion3DPayloadSchema', () => {
 /* eslint-enable vitest/no-commented-out-tests */
 
 describe('ingestion3DDeleteJobParamsSchema', () => {
-  it('should accept a productId string', () => {
-    expect(ingestion3DDeleteJobParamsSchema.safeParse({ productId: 'p-1' }).success).toBe(true);
+  const validJob = { modelId: '0b2f7f8e-4c8e-4f7c-9a52-6a1f3c2d9e10', productId: 'AFL', productName: 'afula' };
+
+  it('should accept the modelId, productId and productName', () => {
+    expect(ingestion3DDeleteJobParamsSchema.safeParse(validJob)).toEqual({ success: true, data: validJob });
   });
 
-  it('should reject a missing productId', () => {
-    expect(ingestion3DDeleteJobParamsSchema.safeParse({}).success).toBe(false);
+  it.each(['modelId', 'productId', 'productName'])('should reject a missing %s', (field) => {
+    const rest = Object.fromEntries(Object.entries(validJob).filter(([key]) => key !== field));
+
+    expect(ingestion3DDeleteJobParamsSchema.safeParse(rest).success).toBe(false);
   });
 
-  it.each([123, '', ' '])('should reject the productId %o', (productId) => {
-    expect(ingestion3DDeleteJobParamsSchema.safeParse({ productId }).success).toBe(false);
+  it.each(['not-a-uuid', '', 123])('should reject the modelId %o', (modelId) => {
+    expect(ingestion3DDeleteJobParamsSchema.safeParse({ ...validJob, modelId }).success).toBe(false);
   });
 });

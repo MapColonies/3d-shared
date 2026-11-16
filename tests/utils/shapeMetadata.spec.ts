@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractShapeMetadataRow } from '../../src/utils/shapeMetadata';
+import { extractShapeMetadataRow, extractShapeMetadataRows } from '../../src/utils/shapeMetadata';
 import { SHAPE_METADATA_FIELDS } from '../../src/constants/ingestion/shapeMetadata';
 
 const row = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
@@ -334,5 +334,24 @@ describe('extractShapeMetadataRow', () => {
     it.each([{ value: '' }, { value: '   ' }])('should reject the blank value "$value"', ({ value }) => {
       expect(errorsOf(row({ [field]: value }))).toEqual([`ShapeMetadata: ${field} must contain at least one value`]);
     });
+  });
+});
+
+describe('extractShapeMetadataRows', () => {
+  it('should read every row', () => {
+    const result = extractShapeMetadataRows([row({ id: 1 }), row({ id: 2 })]);
+
+    expect(result.success && result.data.map((part) => part.partId)).toEqual([1, 2]);
+  });
+
+  it('should report the errors of every invalid row with its row number', () => {
+    expect(extractShapeMetadataRows([row({ prodID: '' }), row(), row({ minResM: undefined })])).toEqual({
+      success: false,
+      errors: ['ShapeMetadata row 1: prodID is mandatory', 'ShapeMetadata row 3: minResM is mandatory'],
+    });
+  });
+
+  it('should reject an empty list of rows', () => {
+    expect(extractShapeMetadataRows([])).toEqual({ success: false, errors: ['ShapeMetadata: must contain at least one row'] });
   });
 });

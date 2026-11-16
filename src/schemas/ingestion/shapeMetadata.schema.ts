@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
+import { toProductId } from '../../utils/productId';
 import { SHAPE_METADATA_FIELDS, SHAPE_METADATA_LIST_SEPARATOR } from '../../constants/ingestion/shapeMetadata';
 import {
   MESSAGES,
@@ -89,7 +90,7 @@ export const shapeMetadataRowSchema = z
   .refine((row) => row.dateStart <= row.dateEnd, { path: [FIELDS.dateStart], message: `must not be later than ${FIELDS.dateEnd}` })
   .refine((row) => row.dateEnd <= new Date(), { path: [FIELDS.dateEnd], message: 'must not be in the future' })
   .transform((row) => ({
-    productId: row.prodID,
+    productId: toProductId(row.prodID),
     productName: row.prodName,
     srsId: row.srsId,
     srsName: row.srsName,
