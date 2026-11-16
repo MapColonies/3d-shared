@@ -8,6 +8,7 @@ const MESSAGES = {
   integer: 'must be a non-negative integer',
   date: 'must be a valid date',
   list: 'must contain at least one value',
+  boolean: 'must be true or false',
 } as const;
 
 const errorMap =
