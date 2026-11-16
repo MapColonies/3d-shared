@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../constants/core';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
+import { deleteJobDataSchema } from '../jobnik/jobs.schema';
 
 export const ingestion3DPayloadSchema = z.object({
   modelPath: z.string().trim().min(1),
@@ -58,6 +59,4 @@ export const ingestion3DPayloadSchema = z.object({
 //   metadata: update3DLayerMetadataSchema,
 // });
 
-export const ingestion3DDeleteJobParamsSchema = z.object({
-  productId: z.string().trim().min(1),
-});
+export const ingestion3DDeleteJobParamsSchema = deleteJobDataSchema;
