@@ -77,7 +77,6 @@ describe('extractShapeMetadataRow', () => {
           accAlg: 'alg',
           mean: 0.1,
           std: 0.02,
-          isTile: 'T',
         })
       );
 
@@ -111,7 +110,6 @@ describe('extractShapeMetadataRow', () => {
           accAlg: 'alg',
           mean: 0.1,
           std: 0.02,
-          isTile: true,
         },
       });
     });
@@ -336,29 +334,6 @@ describe('extractShapeMetadataRow', () => {
     it.each([{ value: '' }, { value: '   ' }])('should reject the blank value "$value"', ({ value }) => {
       expect(errorsOf(row({ [field]: value }))).toEqual([`ShapeMetadata: ${field} must contain at least one value`]);
     });
-  });
-});
-
-describe('isTile', () => {
-  const isTileOf = (value: unknown): boolean | undefined => {
-    const result = extractShapeMetadataRow(row({ isTile: value }));
-    return result.success ? result.data.isTile : undefined;
-  };
-
-  it.each([true, 1, 'T', 't', 'true', 'Y', 'yes', '1'])('should read %o as true', (value) => {
-    expect(isTileOf(value)).toBe(true);
-  });
-
-  it.each([false, 0, 'F', 'false', 'N', 'no', '0'])('should read %o as false', (value) => {
-    expect(isTileOf(value)).toBe(false);
-  });
-
-  it.each([undefined, null, '', '  '])('should default %o to false', (value) => {
-    expect(isTileOf(value)).toBe(false);
-  });
-
-  it.each(['maybe', 2, ['T']])('should reject %o', (value) => {
-    expect(errorsOf(row({ isTile: value }))).toEqual(['ShapeMetadata: isTile must be true or false']);
   });
 });
 

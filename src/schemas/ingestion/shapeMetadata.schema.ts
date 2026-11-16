@@ -53,23 +53,6 @@ const listSchema = (minItems: number): z.ZodEffects<z.ZodEffects<z.ZodString, st
     ])
     .refine((items) => items.length >= minItems, MESSAGES.list);
 
-const TRUE_VALUES = ['true', 't', 'y', 'yes', '1'];
-const FALSE_VALUES = ['false', 'f', 'n', 'no', '0'];
-
-const booleanSchema = z.preprocess(
-  (value) => {
-    if (typeof value === 'number') {
-      return value === 1 ? true : value === 0 ? false : value;
-    }
-    if (typeof value === 'string') {
-      const normalized = value.trim().toLowerCase();
-      return TRUE_VALUES.includes(normalized) ? true : FALSE_VALUES.includes(normalized) ? false : value;
-    }
-    return value;
-  },
-  z.boolean({ errorMap: errorMap(MESSAGES.boolean) })
-);
-
 const sensorsSchema = listSchema(INGESTION_VALIDATIONS.sensors.minItems);
 const regionsSchema = listSchema(INGESTION_VALIDATIONS.region.minItems);
 
@@ -102,7 +85,6 @@ export const shapeMetadataRowSchema = z
     [FIELDS.accAlg]: optional(textSchema),
     [FIELDS.mean]: optional(numberSchema),
     [FIELDS.std]: optional(numberSchema),
-    [FIELDS.isTile]: optional(booleanSchema),
   })
   .refine((row) => row.minResM <= row.maxResM, { path: [FIELDS.minResM], message: `must not be greater than ${FIELDS.maxResM}` })
   .refine((row) => row.dateStart <= row.dateEnd, { path: [FIELDS.dateStart], message: `must not be later than ${FIELDS.dateEnd}` })
@@ -135,5 +117,4 @@ export const shapeMetadataRowSchema = z
     accAlg: row.accAlg,
     mean: row.mean,
     std: row.std,
-    isTile: row.isTile ?? false,
   }));
