@@ -1,1 +1,1 @@
-export const toProductId = (prodID: string): string => prodID.trim();
+export const toProductId = (prodID: string): string => prodID.replace(/\s\s+/g, ' ').trim();

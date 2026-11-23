@@ -6,6 +6,9 @@ describe('toProductId', () => {
   it.each([
     ['AFL', 'AFL'],
     ['  AFL ', 'AFL'],
+    ['AFL  north', 'AFL north'],
+    [' AFL \t north ', 'AFL north'],
+    ['AFL north', 'AFL north'],
   ])('should map %o to %o', (prodID, productId) => {
     expect(toProductId(prodID)).toBe(productId);
   });

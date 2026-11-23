@@ -48,16 +48,24 @@ const metadata = {
 };
 
 describe('relativePathSchema', () => {
-  it.each(['afula/data', 'afula\\data\\tileset.json', ' afula '])('should accept %o', (path) => {
+  it.each(['afula/data', 'afula\\data\\tileset.json', 'afula/data\\tileset.json', ' afula '])('should accept %o', (path) => {
     expect(relativePathSchema.safeParse(path).success).toBe(true);
   });
 
-  it.each(['', '  ', '/mnt/share/afula', 'C:\\share\\afula', '\\\\server\\share\\afula', 'afula/../other', '..\\other'])(
-    'should reject %o',
-    (path) => {
-      expect(relativePathSchema.safeParse(path).success).toBe(false);
-    }
-  );
+  it.each([
+    '',
+    '  ',
+    '/mnt/share/afula',
+    'C:\\share\\afula',
+    '\\\\server\\share\\afula',
+    'afula/../other',
+    '..\\other',
+    'afula\\..\\other',
+    'C:/share/afula',
+    'C:afula',
+  ])('should reject %o', (path) => {
+    expect(relativePathSchema.safeParse(path).success).toBe(false);
+  });
 });
 
 describe('task schemas', () => {
