@@ -3,7 +3,9 @@ import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../constants/core';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
 import { STORAGE_PROVIDERS } from '../../constants/jobnik';
 import { geometrySchema } from '../core/geo.schema';
-import { modelIdSchema, relativePathSchema } from './common.schema';
+import { modelIdSchema, productIdSchema, productNameSchema, relativePathSchema } from './common.schema';
+
+const range = ({ min, max }: { min: number; max: number }): z.ZodNumber => z.number().min(min).max(max);
 
 export const validateShapefilesTaskSchema = z.object({
   modelId: modelIdSchema,
@@ -35,32 +37,42 @@ export const insertPartsTaskSchema = z.object({
   productVersion: z.number().int().positive(),
 });
 
-export const recordMetadataSchema = z.object({
-  productId: z.string().trim().min(1),
-  productName: z.string().trim().min(1).max(INGESTION_VALIDATIONS.productName.maxLength),
-  productType: z.enum(LAYER_3D_PRODUCT_TYPE_LIST as [string, ...string[]]),
-  productSubType: z.string().optional(),
-  description: z.string().optional(),
-  keywords: z.string().optional(),
-  classification: z.string().trim().regex(new RegExp(INGESTION_VALIDATIONS.classification.pattern)),
-  srsId: z.string().trim().min(1),
-  srsName: z.string().trim().min(1),
-  producerName: z.string().trim().min(1),
-  productionSystem: z.string().trim().min(1),
-  productionSystemVersion: z.string().trim().min(1),
-  productionDate: z.string().datetime(),
-  imagingTimeBeginUTC: z.coerce.date(),
-  imagingTimeEndUTC: z.coerce.date(),
-  minResolutionMeter: z.number(),
-  maxResolutionMeter: z.number(),
-  maxAbsoluteAccuracyCEP90: z.number(),
-  maxAbsoluteAccuracyLEP90: z.number(),
-  maxAbsoluteAccuracySEP90: z.number().optional(),
-  maxRelativeAccuracyCEP90: z.number().optional(),
-  maxRelativeAccuracyLEP90: z.number().optional(),
-  maxRelativeAccuracySEP90: z.number().optional(),
-  sensors: z.array(z.string().trim().min(1)).min(INGESTION_VALIDATIONS.sensors.minItems),
-});
+export const recordMetadataSchema = z
+  .object({
+    productId: productIdSchema,
+    productName: productNameSchema,
+    productType: z.enum(LAYER_3D_PRODUCT_TYPE_LIST as [string, ...string[]]),
+    productSubType: z.string().optional(),
+    description: z.string().optional(),
+    keywords: z.string().optional(),
+    classification: z.string().trim().regex(new RegExp(INGESTION_VALIDATIONS.classification.pattern)),
+    srsId: z.string().trim().min(1),
+    srsName: z.string().trim().min(1),
+    producerName: z.string().trim().min(1),
+    productionSystem: z.string().trim().min(1),
+    productionSystemVersion: z.string().trim().min(1),
+    productionDate: z.string().datetime({ offset: true }),
+    imagingTimeBeginUTC: z.coerce.date(),
+    imagingTimeEndUTC: z.coerce.date(),
+    minResolutionMeter: range(INGESTION_VALIDATIONS.resolutionMeter),
+    maxResolutionMeter: range(INGESTION_VALIDATIONS.resolutionMeter),
+    maxAbsoluteAccuracyCEP90: range(INGESTION_VALIDATIONS.accuracy),
+    maxAbsoluteAccuracyLEP90: range(INGESTION_VALIDATIONS.accuracy),
+    maxAbsoluteAccuracySEP90: range(INGESTION_VALIDATIONS.absoluteAccuracySep90).optional(),
+    maxRelativeAccuracyCEP90: range(INGESTION_VALIDATIONS.accuracy).optional(),
+    maxRelativeAccuracyLEP90: range(INGESTION_VALIDATIONS.accuracy).optional(),
+    maxRelativeAccuracySEP90: range(INGESTION_VALIDATIONS.relativeAccuracySep90).optional(),
+    sensors: z.array(z.string().trim().min(1)).min(INGESTION_VALIDATIONS.sensors.minItems),
+  })
+  .strict()
+  .refine((metadata) => metadata.minResolutionMeter <= metadata.maxResolutionMeter, {
+    path: ['minResolutionMeter'],
+    message: 'must not be greater than maxResolutionMeter',
+  })
+  .refine((metadata) => metadata.imagingTimeBeginUTC <= metadata.imagingTimeEndUTC, {
+    path: ['imagingTimeBeginUTC'],
+    message: 'must not be later than imagingTimeEndUTC',
+  });
 
 export const insertRecordTaskSchema = z.object({
   modelId: modelIdSchema,

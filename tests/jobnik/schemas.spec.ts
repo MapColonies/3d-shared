@@ -52,6 +52,10 @@ describe('relativePathSchema', () => {
     expect(relativePathSchema.safeParse(path).success).toBe(true);
   });
 
+  it('should keep the path as given, so an upload key is not changed', () => {
+    expect(relativePathSchema.parse('tiles/a.b3dm ')).toBe('tiles/a.b3dm ');
+  });
+
   it.each([
     '',
     '  ',
@@ -101,6 +105,37 @@ describe('task schemas', () => {
     expect(result.metadata.imagingTimeBeginUTC).toEqual(new Date('2025-07-06T00:00:00.000Z'));
   });
 
+  const insertRecord = (changes: Record<string, unknown>): unknown => ({
+    modelId,
+    tilesetFilename: 'tileset.json',
+    metadata: { ...metadata, ...changes },
+    footprint,
+    region: ['France'],
+  });
+
+  it('should collapse repeated whitespace in the record product id and name', () => {
+    const result = insertRecordTaskSchema.parse(insertRecord({ productId: ' AFL  north ', productName: 'afula   north' }));
+
+    expect(result.metadata).toMatchObject({ productId: 'AFL north', productName: 'afula north' });
+  });
+
+  it('should accept a production date with a time zone offset', () => {
+    expect(insertRecordTaskSchema.safeParse(insertRecord({ productionDate: '2025-07-10T00:00:00+03:00' })).success).toBe(true);
+  });
+
+  it.each([
+    ['minResolutionMeter', { minResolutionMeter: 0.001 }],
+    ['maxAbsoluteAccuracyCEP90', { maxAbsoluteAccuracyCEP90: 1000 }],
+    ['maxAbsoluteAccuracySEP90', { maxAbsoluteAccuracySEP90: 251 }],
+    ['maxRelativeAccuracySEP90', { maxRelativeAccuracySEP90: 101 }],
+    ['minResolutionMeter', { minResolutionMeter: 2, maxResolutionMeter: 1 }],
+    ['imagingTimeBeginUTC', { imagingTimeBeginUTC: '2025-07-09T00:00:00.000Z' }],
+    ['productName', { productName: 'a'.repeat(121) }],
+    ['productBBox', { productBBox: '1,2,3,4' }],
+  ])('should reject insert-record metadata with an invalid %s', (_field, changes) => {
+    expect(insertRecordTaskSchema.safeParse(insertRecord(changes)).success).toBe(false);
+  });
+
   it('should reject an insert-record task whose metadata has an unknown product type', () => {
     const data = { modelId, tilesetFilename: 'tileset.json', metadata: { ...metadata, productType: 'ORTHOPHOTO' }, footprint, region: ['France'] };
 
@@ -111,5 +146,19 @@ describe('task schemas', () => {
 describe('jobDataSchema', () => {
   it('should accept the modelId, productId and productName', () => {
     expect(jobDataSchema.safeParse({ modelId, productId: 'AFL', productName: 'afula' }).success).toBe(true);
+  });
+
+  it('should collapse repeated whitespace in the product id and name, like the ingestion', () => {
+    expect(jobDataSchema.parse({ modelId, productId: ' AFL  north ', productName: 'afula   north' })).toMatchObject({
+      productId: 'AFL north',
+      productName: 'afula north',
+    });
+  });
+
+  it.each([
+    { productId: '   ', productName: 'afula' },
+    { productId: 'AFL', productName: 'a'.repeat(121) },
+  ])('should reject %o', (changes) => {
+    expect(jobDataSchema.safeParse({ modelId, ...changes }).success).toBe(false);
   });
 });
