@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toProductId } from '../../src/utils/productId';
+import { simplifyWhitespace, toProductId } from '../../src/utils/productId';
 import { extractShapeMetadataRow } from '../../src/utils/shapeMetadata';
 
 describe('toProductId', () => {
@@ -11,6 +11,13 @@ describe('toProductId', () => {
     ['AFL north', 'AFL north'],
   ])('should map %o to %o', (prodID, productId) => {
     expect(toProductId(prodID)).toBe(productId);
+  });
+
+  it.each([
+    ['  afula  north ', 'afula north'],
+    ['afula\tnorth', 'afula\tnorth'],
+  ])('should simplify the whitespace of %o', (value, simplified) => {
+    expect(simplifyWhitespace(value)).toBe(simplified);
   });
 
   it('should be the productId the shape metadata row produces', () => {

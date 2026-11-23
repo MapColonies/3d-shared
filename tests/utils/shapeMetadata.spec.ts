@@ -180,6 +180,22 @@ describe('extractShapeMetadataRow', () => {
       expect(extractShapeMetadataRow(row({ prodName: ` ${name} ` }))).toMatchObject({ success: true, data: { productName: name } });
     });
 
+    it('should collapse repeated whitespace in the product id and name', () => {
+      expect(extractShapeMetadataRow(row({ prodID: ' AFL  north ', prodName: ' afula \t  north ' }))).toMatchObject({
+        success: true,
+        data: { productId: 'AFL north', productName: 'afula north' },
+      });
+    });
+
+    it('should check the product name length after collapsing whitespace', () => {
+      const name = `${'a'.repeat(60)}   ${'a'.repeat(59)}`;
+
+      expect(extractShapeMetadataRow(row({ prodName: name }))).toMatchObject({
+        success: true,
+        data: { productName: `${'a'.repeat(60)} ${'a'.repeat(59)}` },
+      });
+    });
+
     it('should reject a product name longer than the allowed length', () => {
       expect(errorsOf(row({ prodName: 'a'.repeat(121) }))).toEqual(['ShapeMetadata: prodName must be at most 120 characters']);
     });

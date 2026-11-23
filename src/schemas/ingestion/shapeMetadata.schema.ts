@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
-import { toProductId } from '../../utils/productId';
+import { simplifyWhitespace, toProductId } from '../../utils/productId';
 import { SHAPE_METADATA_FIELDS, SHAPE_METADATA_LIST_SEPARATOR } from '../../constants/ingestion/shapeMetadata';
 import {
   MESSAGES,
@@ -23,9 +23,15 @@ const trimmedTextSchema = z.string({ errorMap: errorMap(MESSAGES.text) }).trim()
 
 const textSchema = trimmedTextSchema.min(1, MESSAGES.mandatory);
 
-const productNameSchema = trimmedTextSchema
-  .min(1, MESSAGES.mandatory)
-  .max(INGESTION_VALIDATIONS.productName.maxLength, `must be at most ${INGESTION_VALIDATIONS.productName.maxLength} characters`);
+const productNameSchema = z
+  .string({ errorMap: errorMap(MESSAGES.text) })
+  .transform(simplifyWhitespace)
+  .pipe(
+    z
+      .string()
+      .min(1, MESSAGES.mandatory)
+      .max(INGESTION_VALIDATIONS.productName.maxLength, `must be at most ${INGESTION_VALIDATIONS.productName.maxLength} characters`)
+  );
 
 const dateSchema = z.preprocess(
   (value) => {
