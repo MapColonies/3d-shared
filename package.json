@@ -49,10 +49,8 @@
   },
   "dependencies": {
     "@map-colonies/types": "^1.4.0",
-    "@turf/turf": "^7.4.0",
     "geojson": "^0.5.0",
     "mime-types": "^2.1.35",
-    "proj4": "^2.22.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
@@ -64,7 +62,6 @@
     "@map-colonies/tsconfig": "^2.0.0",
     "@types/geojson": "^7946.0.14",
     "@types/node": "^22.13.11",
-    "@types/proj4": "^2.5.6",
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/eslint-plugin": "^1.6.9",
     "@vitest/ui": "^4.0.18",
