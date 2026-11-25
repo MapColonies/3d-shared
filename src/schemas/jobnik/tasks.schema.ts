@@ -3,7 +3,7 @@ import { LAYER_3D_PRODUCT_TYPE_LIST } from '../../constants/core';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
 import { STORAGE_PROVIDERS } from '../../constants/jobnik';
 import { geometrySchema } from '../core/geo.schema';
-import { modelIdSchema, productIdSchema, productNameSchema, relativePathSchema } from './common.schema';
+import { modelIdSchema, productIdSchema, productNameSchema, relativePathSchema, srsIdSchema } from './common.schema';
 
 const range = ({ min, max }: { min: number; max: number }): z.ZodNumber => z.number().min(min).max(max);
 
@@ -34,7 +34,6 @@ export const deleteFilesTaskSchema = z.object({
 export const insertPartsTaskSchema = z.object({
   modelId: modelIdSchema,
   metadataShapefilePath: relativePathSchema,
-  productVersion: z.number().int().positive(),
 });
 
 export const recordMetadataSchema = z
@@ -46,7 +45,7 @@ export const recordMetadataSchema = z
     description: z.string().optional(),
     keywords: z.string().optional(),
     classification: z.string().trim().regex(new RegExp(INGESTION_VALIDATIONS.classification.pattern)),
-    srsId: z.string().trim().min(1),
+    srsId: srsIdSchema,
     srsName: z.string().trim().min(1),
     producerName: z.string().trim().min(1),
     productionSystem: z.string().trim().min(1),

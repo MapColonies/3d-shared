@@ -1,3 +1,4 @@
 export * from './typeUtils';
 export * from './shapeMetadata';
-export * from './productId';
+export * from './text';
+export * from './epsg';

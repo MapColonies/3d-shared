@@ -180,11 +180,19 @@ describe('extractShapeMetadataRow', () => {
       expect(extractShapeMetadataRow(row({ prodName: ` ${name} ` }))).toMatchObject({ success: true, data: { productName: name } });
     });
 
-    it('should collapse repeated whitespace in the product id and name', () => {
-      expect(extractShapeMetadataRow(row({ prodID: ' AFL  north ', prodName: ' afula \t  north ' }))).toMatchObject({
+    it('should collapse repeated whitespace in the product name', () => {
+      expect(extractShapeMetadataRow(row({ prodName: ' afula \t  north ' }))).toMatchObject({
         success: true,
-        data: { productId: 'AFL north', productName: 'afula north' },
+        data: { productName: 'afula north' },
       });
+    });
+
+    it.each(['AFL north', '1AFL', 'AFL-north', `A${'a'.repeat(37)}`])('should reject the product id %o', (prodID) => {
+      expect(errorsOf(row({ prodID }))).toEqual(['ShapeMetadata: prodID must start with a letter and contain only letters, numbers and underscores']);
+    });
+
+    it.each(['EPSG:4326', '99999'])('should reject the srsId %o', (srsId) => {
+      expect(errorsOf(row({ srsId }))).toEqual(['ShapeMetadata: srsId must be a valid EPSG code']);
     });
 
     it('should check the product name length after collapsing whitespace', () => {

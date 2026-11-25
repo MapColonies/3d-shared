@@ -8,6 +8,8 @@ const MESSAGES = {
   integer: 'must be a non-negative integer',
   date: 'must be a valid date',
   list: 'must contain at least one value',
+  productId: 'must start with a letter and contain only letters, numbers and underscores',
+  srsId: 'must be a valid EPSG code',
 } as const;
 
 const errorMap =

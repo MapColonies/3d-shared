@@ -11,7 +11,6 @@ import {
   uploadFilesTaskSchema,
   validateShapefilesTaskSchema,
 } from '../../src/schemas/jobnik';
-import { PRODUCT_VERSION } from '../../src/constants/jobnik';
 
 const modelId = '0b2f7f8e-4c8e-4f7c-9a52-6a1f3c2d9e10';
 
@@ -80,7 +79,7 @@ describe('task schemas', () => {
     ['upload-files', uploadFilesTaskSchema, { sourceDir: 'afula/data', s3KeyPrefix: modelId, keys: ['tileset.json', 'tiles/0.b3dm'] }],
     ['delete-temp-files', deleteFilesTaskSchema, { storageProvider: 'FS', paths: [`temp/${modelId}`] }],
     ['delete-model-files', deleteFilesTaskSchema, { storageProvider: 'S3', paths: [`${modelId}/`] }],
-    ['insert-parts', insertPartsTaskSchema, { modelId, metadataShapefilePath: 'afula/shape/ShapeMetadata.shp', productVersion: PRODUCT_VERSION }],
+    ['insert-parts', insertPartsTaskSchema, { modelId, metadataShapefilePath: 'afula/shape/ShapeMetadata.shp' }],
     ['insert-record', insertRecordTaskSchema, { modelId, tilesetFilename: 'tileset.json', metadata, footprint, region: ['France'] }],
     ['delete-parts / delete-record', modelTaskSchema, { modelId }],
   ])('should accept the %s task data', (_stage, schema, data) => {
@@ -113,10 +112,10 @@ describe('task schemas', () => {
     region: ['France'],
   });
 
-  it('should collapse repeated whitespace in the record product id and name', () => {
-    const result = insertRecordTaskSchema.parse(insertRecord({ productId: ' AFL  north ', productName: 'afula   north' }));
+  it('should trim the record product id and collapse repeated whitespace in the product name', () => {
+    const result = insertRecordTaskSchema.parse(insertRecord({ productId: ' AFL_north ', productName: 'afula   north' }));
 
-    expect(result.metadata).toMatchObject({ productId: 'AFL north', productName: 'afula north' });
+    expect(result.metadata).toMatchObject({ productId: 'AFL_north', productName: 'afula north' });
   });
 
   it('should accept a production date with a time zone offset', () => {
@@ -132,6 +131,9 @@ describe('task schemas', () => {
     ['imagingTimeBeginUTC', { imagingTimeBeginUTC: '2025-07-09T00:00:00.000Z' }],
     ['productName', { productName: 'a'.repeat(121) }],
     ['productBBox', { productBBox: '1,2,3,4' }],
+    ['productId', { productId: 'AFL north' }],
+    ['srsId', { srsId: '99999' }],
+    ['srsId', { srsId: 'EPSG:4326' }],
   ])('should reject insert-record metadata with an invalid %s', (_field, changes) => {
     expect(insertRecordTaskSchema.safeParse(insertRecord(changes)).success).toBe(false);
   });
@@ -148,15 +150,19 @@ describe('jobDataSchema', () => {
     expect(jobDataSchema.safeParse({ modelId, productId: 'AFL', productName: 'afula' }).success).toBe(true);
   });
 
-  it('should collapse repeated whitespace in the product id and name, like the ingestion', () => {
-    expect(jobDataSchema.parse({ modelId, productId: ' AFL  north ', productName: 'afula   north' })).toMatchObject({
-      productId: 'AFL north',
-      productName: 'afula north',
+  it('should trim the product id and collapse repeated whitespace in the product name, like the ingestion', () => {
+    expect(jobDataSchema.parse({ modelId, productId: ' AFL_north ', productName: '    aaa    ffgf dsv  dsv      r    ' })).toMatchObject({
+      productId: 'AFL_north',
+      productName: 'aaa ffgf dsv dsv r',
     });
   });
 
   it.each([
     { productId: '   ', productName: 'afula' },
+    { productId: 'AFL north', productName: 'afula' },
+    { productId: '1AFL', productName: 'afula' },
+    { productId: 'AFL-north', productName: 'afula' },
+    { productId: `A${'a'.repeat(37)}`, productName: 'afula' },
     { productId: 'AFL', productName: 'a'.repeat(121) },
   ])('should reject %o', (changes) => {
     expect(jobDataSchema.safeParse({ modelId, ...changes }).success).toBe(false);

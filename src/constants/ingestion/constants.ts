@@ -1,4 +1,8 @@
 export const INGESTION_VALIDATIONS = {
+  productId: {
+    pattern: '^[A-Za-z]{1}[A-Za-z0-9_]{0,36}$',
+    description: 'Product ID must start with a letter and contain only letters, numbers and underscores',
+  },
   productName: {
     maxLength: 120,
   },
