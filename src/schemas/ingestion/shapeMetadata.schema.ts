@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { INGESTION_VALIDATIONS } from '../../constants/ingestion';
+import { isEpsgCode } from '../../utils/epsg';
+import { simplifyWhitespace } from '../../utils/text';
 import { SHAPE_METADATA_FIELDS, SHAPE_METADATA_LIST_SEPARATOR } from '../../constants/ingestion/shapeMetadata';
 import {
   MESSAGES,
@@ -22,9 +24,19 @@ const trimmedTextSchema = z.string({ errorMap: errorMap(MESSAGES.text) }).trim()
 
 const textSchema = trimmedTextSchema.min(1, MESSAGES.mandatory);
 
-const productNameSchema = trimmedTextSchema
-  .min(1, MESSAGES.mandatory)
-  .max(INGESTION_VALIDATIONS.productName.maxLength, `must be at most ${INGESTION_VALIDATIONS.productName.maxLength} characters`);
+const productIdSchema = textSchema.pipe(z.string().regex(new RegExp(INGESTION_VALIDATIONS.productId.pattern), MESSAGES.productId));
+
+const srsIdSchema = textSchema.pipe(z.string().refine(isEpsgCode, MESSAGES.srsId));
+
+const productNameSchema = z
+  .string({ errorMap: errorMap(MESSAGES.text) })
+  .transform(simplifyWhitespace)
+  .pipe(
+    z
+      .string()
+      .min(1, MESSAGES.mandatory)
+      .max(INGESTION_VALIDATIONS.productName.maxLength, `must be at most ${INGESTION_VALIDATIONS.productName.maxLength} characters`)
+  );
 
 const dateSchema = z.preprocess(
   (value) => {
@@ -57,9 +69,9 @@ const regionsSchema = listSchema(INGESTION_VALIDATIONS.region.minItems);
 
 export const shapeMetadataRowSchema = z
   .object({
-    [FIELDS.prodID]: textSchema,
+    [FIELDS.prodID]: productIdSchema,
     [FIELDS.prodName]: productNameSchema,
-    [FIELDS.srsId]: textSchema,
+    [FIELDS.srsId]: srsIdSchema,
     [FIELDS.srsName]: textSchema,
     [FIELDS.producer]: textSchema,
     [FIELDS.prodSys]: textSchema,
