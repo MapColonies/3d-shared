@@ -9,7 +9,8 @@
     ".": {
       "types": "./dist/index.d.ts",
       "require": "./dist/index.js"
-    }
+    },
+    "./openapi/*": "./openapi/*"
   },
   "scripts": {
     "test": "vitest run",
@@ -26,7 +27,8 @@
     "clean": "rimraf dist",
     "prepack": "npm run build",
     "prepare": "husky",
-    "check-dist": "publint && attw --pack ."
+    "check-dist": "publint && attw --pack .",
+    "generate:openapi": "tsx scripts/openapi.ts"
   },
   "repository": {
     "type": "git",
@@ -38,7 +40,8 @@
     "url": "https://github.com/MapColonies/3d-shared/issues"
   },
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "openapi/**/*"
   ],
   "homepage": "https://github.com/MapColonies/3d-shared#readme",
   "publishConfig": {
@@ -55,6 +58,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
+    "@asteasolutions/zod-to-openapi": "^7.3.4",
     "@commitlint/cli": "^20.4.1",
     "@map-colonies/commitlint-config": "^2.0.0",
     "@map-colonies/eslint-config": "^8.0.0",
@@ -72,8 +76,10 @@
     "pretty-quick": "^4.2.2",
     "publint": "^0.3.17",
     "rimraf": "^6.1.3",
+    "tsx": "^4.23.15",
     "typedoc": "^0.28.17",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "yaml": "^2.9.1"
   }
 }
